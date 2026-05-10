@@ -250,6 +250,8 @@ async function seed() {
       { id: 6, email: 'sarah.chen@acmecorp.com', name: 'Sarah Chen', role: 'manager' },
       { id: 7, email: 'james.rodriguez@acmecorp.com', name: 'James Rodriguez', role: 'manager' },
       { id: 8, email: 'lisa.thompson@acmecorp.com', name: 'Lisa Thompson', role: 'manager' },
+      { id: 10, email: 'david.nakamura@acmecorp.com', name: 'David Nakamura', role: 'employee' },
+      { id: 12, email: 'thomas.baker@acmecorp.com', name: 'Thomas Baker', role: 'employee' },
     ];
     for (const u of additionalUsers) {
       const existing = await client.query('SELECT id FROM users WHERE id = $1', [u.id]);
@@ -264,7 +266,7 @@ async function seed() {
         console.log(`  - User ${u.email} (id=${u.id}) already exists`);
       }
     }
-    await client.query("SELECT setval('users_id_seq', GREATEST(8, (SELECT MAX(id) FROM users)))");
+    await client.query("SELECT setval('users_id_seq', GREATEST(12, (SELECT MAX(id) FROM users)))");
 
     // 5. Run seed-reset.sql for transactional demo data
     console.log('\nLoading transactional demo data...');
