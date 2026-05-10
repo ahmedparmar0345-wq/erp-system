@@ -247,10 +247,13 @@ async function seed() {
     // 4b. Add additional users referenced by seed-reset.sql (IDs 6, 7, 8)
     console.log('Ensuring additional users for demo data...');
     const additionalUsers = [
+      { id: 5, email: 'emily.watanabe@acmecorp.com', name: 'Emily Watanabe', role: 'manager' },
       { id: 6, email: 'sarah.chen@acmecorp.com', name: 'Sarah Chen', role: 'manager' },
       { id: 7, email: 'james.rodriguez@acmecorp.com', name: 'James Rodriguez', role: 'manager' },
       { id: 8, email: 'lisa.thompson@acmecorp.com', name: 'Lisa Thompson', role: 'manager' },
+      { id: 9, email: 'amanda.foster@acmecorp.com', name: 'Amanda Foster', role: 'manager' },
       { id: 10, email: 'david.nakamura@acmecorp.com', name: 'David Nakamura', role: 'employee' },
+      { id: 11, email: 'rachel.martinez@acmecorp.com', name: 'Rachel Martinez', role: 'employee' },
       { id: 12, email: 'thomas.baker@acmecorp.com', name: 'Thomas Baker', role: 'employee' },
     ];
     for (const u of additionalUsers) {
