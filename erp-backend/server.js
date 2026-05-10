@@ -79,6 +79,10 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', app: 'ERP Backend' });
+});
+
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -128,6 +132,7 @@ process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully...');
   process.exit(0);
 });
+
 
 // Start the server with automatic port handling
 startServer(DEFAULT_PORT);
