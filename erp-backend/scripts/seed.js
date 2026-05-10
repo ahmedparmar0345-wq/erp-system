@@ -244,6 +244,28 @@ async function seed() {
       }
     }
 
+    // 4b. Add additional users referenced by seed-reset.sql (IDs 6, 7, 8)
+    console.log('Ensuring additional users for demo data...');
+    const additionalUsers = [
+      { id: 6, email: 'sarah.chen@acmecorp.com', name: 'Sarah Chen', role: 'manager' },
+      { id: 7, email: 'james.rodriguez@acmecorp.com', name: 'James Rodriguez', role: 'manager' },
+      { id: 8, email: 'lisa.thompson@acmecorp.com', name: 'Lisa Thompson', role: 'manager' },
+    ];
+    for (const u of additionalUsers) {
+      const existing = await client.query('SELECT id FROM users WHERE id = $1', [u.id]);
+      if (existing.rows.length === 0) {
+        const hash = await bcrypt.hash('demo123', 10);
+        await client.query(
+          'INSERT INTO users (id, company_id, email, password_hash, name, role) VALUES ($1, 1, $2, $3, $4, $5)',
+          [u.id, u.email, hash, u.name, u.role]
+        );
+        console.log(`  ✓ Created user: ${u.email} / demo123`);
+      } else {
+        console.log(`  - User ${u.email} (id=${u.id}) already exists`);
+      }
+    }
+    await client.query("SELECT setval('users_id_seq', GREATEST(8, (SELECT MAX(id) FROM users)))");
+
     // 5. Run seed-reset.sql for transactional demo data
     console.log('\nLoading transactional demo data...');
     const seedPath = join(__dirname, '..', 'seed-reset.sql');
