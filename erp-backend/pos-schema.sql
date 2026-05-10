@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS pos_cart (
     user_id TEXT,
     session_id INTEGER REFERENCES pos_sessions(id),
     customer_id TEXT,
-    product_id TEXT REFERENCES products(id),
+    product_id INTEGER REFERENCES products(id),
     quantity INTEGER NOT NULL,
     unit_price DECIMAL(15,2) NOT NULL,
     discount_percent DECIMAL(5,2) DEFAULT 0,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS pos_transactions (
 CREATE TABLE IF NOT EXISTS pos_transaction_items (
     id SERIAL PRIMARY KEY,
     pos_transaction_id INTEGER REFERENCES pos_transactions(id) ON DELETE CASCADE,
-    product_id TEXT REFERENCES products(id),
+    product_id INTEGER REFERENCES products(id),
     product_name VARCHAR(255),
     sku VARCHAR(50),
     quantity INTEGER NOT NULL,
