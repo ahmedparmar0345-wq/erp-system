@@ -14,7 +14,7 @@ const AppearanceTab = () => {
     getSettings('appearance')
       .then(res => {
         const vals = {};
-        Object.entries(res.data.appearance || {}).forEach(([key, { value }]) => {
+        Object.entries(res.data.appearance || {}).forEach(([key, value]) => {
           vals[key] = value;
         });
         setFormData(vals);

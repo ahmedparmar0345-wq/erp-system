@@ -17,7 +17,7 @@ const CurrencyTab = () => {
     getSettings('currency')
       .then(res => {
         const vals = {};
-        Object.entries(res.data.currency || {}).forEach(([key, { value }]) => {
+        Object.entries(res.data.currency || {}).forEach(([key, value]) => {
           vals[key] = value;
         });
         setFormData(vals);

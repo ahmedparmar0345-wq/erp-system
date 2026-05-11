@@ -19,7 +19,7 @@ const GeneralTab = () => {
     getSettings('general')
       .then(res => {
         const vals = {};
-        Object.entries(res.data.general || {}).forEach(([key, { value }]) => {
+        Object.entries(res.data.general || {}).forEach(([key, value]) => {
           vals[key] = value;
         });
         setFormData(vals);

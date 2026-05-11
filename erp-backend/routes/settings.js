@@ -62,42 +62,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/settings/:key
-router.get('/:key', async (req, res) => {
-  try {
-    const result = await pool.query(
-      'SELECT * FROM system_settings WHERE company_id = $1 AND setting_key = $2',
-      [req.user.company_id, req.params.key]
-    );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Setting not found' });
-    }
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// PUT /api/settings/:key
-router.put('/:key', async (req, res) => {
-  try {
-    const { value } = req.body;
-    const result = await pool.query(
-      `UPDATE system_settings 
-             SET setting_value = $1, updated_at = CURRENT_TIMESTAMP 
-             WHERE company_id = $2 AND setting_key = $3 
-             RETURNING *`,
-      [value, req.user.company_id, req.params.key]
-    );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Setting not found' });
-    }
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // POST /api/settings/upload-logo
 router.post('/upload-logo', upload.single('logo'), async (req, res) => {
   try {
@@ -437,6 +401,44 @@ router.post('/maintenance', async (req, res) => {
       [enabled ? 'true' : 'false', req.user.company_id, 'maintenance_mode']
     );
     res.json({ message: `Maintenance mode ${enabled ? 'enabled' : 'disabled'}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==================== PARAMETERIZED ROUTES (must be last) ====================
+
+// GET /api/settings/:key
+router.get('/:key', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM system_settings WHERE company_id = $1 AND setting_key = $2',
+      [req.user.company_id, req.params.key]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Setting not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/settings/:key
+router.put('/:key', async (req, res) => {
+  try {
+    const { value } = req.body;
+    const result = await pool.query(
+      `UPDATE system_settings 
+             SET setting_value = $1, updated_at = CURRENT_TIMESTAMP 
+             WHERE company_id = $2 AND setting_key = $3 
+             RETURNING *`,
+      [value, req.user.company_id, req.params.key]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Setting not found' });
+    }
+    res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
