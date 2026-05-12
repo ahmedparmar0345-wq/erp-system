@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '../services/api';
 
 const Suppliers = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -21,12 +22,8 @@ const Suppliers = () => {
   const fetchSuppliers = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/suppliers', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setSuppliers(Array.isArray(data) ? data : []);
+      const res = await api.get('/suppliers');
+      setSuppliers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Error fetching suppliers:', err);
     } finally {
@@ -36,59 +33,32 @@ const Suppliers = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
-
     try {
-      const url = editingSupplier
-        ? `http://localhost:3000/api/suppliers/${editingSupplier.id}`
-        : 'http://localhost:3000/api/suppliers';
-      const method = editingSupplier ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        alert(editingSupplier ? 'Supplier updated successfully!' : 'Supplier created successfully!');
-        setShowModal(false);
-        resetForm();
-        fetchSuppliers();
+      if (editingSupplier) {
+        await api.put(`/suppliers/${editingSupplier.id}`, formData);
+        alert('Supplier updated successfully!');
       } else {
-        const error = await response.json();
-        alert('Failed to save supplier: ' + (error.error || 'Unknown error'));
+        await api.post('/suppliers', formData);
+        alert('Supplier created successfully!');
       }
+      setShowModal(false);
+      resetForm();
+      fetchSuppliers();
     } catch (err) {
       console.error('Error saving supplier:', err);
-      alert('Failed to save supplier');
+      alert('Failed to save supplier: ' + (err.response?.data?.error || err.message));
     }
   };
 
   const handleDelete = async (id, name) => {
     if (!window.confirm(`Delete supplier "${name}"? This cannot be undone.`)) return;
-
-    const token = localStorage.getItem('token');
-
     try {
-      const response = await fetch(`http://localhost:3000/api/suppliers/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        alert('Supplier deleted successfully!');
-        fetchSuppliers();
-      } else {
-        const error = await response.json();
-        alert('Failed to delete: ' + (error.error || 'Unknown error'));
-      }
+      await api.delete(`/suppliers/${id}`);
+      alert('Supplier deleted successfully!');
+      fetchSuppliers();
     } catch (err) {
       console.error('Error deleting supplier:', err);
-      alert('Failed to delete supplier');
+      alert('Failed to delete: ' + (err.response?.data?.error || err.message));
     }
   };
 

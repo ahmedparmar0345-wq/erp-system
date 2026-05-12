@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from '../../services/api';
 
 const PurchaseReturns = () => {
   const [returns, setReturns] = useState([]);
@@ -27,56 +28,48 @@ const PurchaseReturns = () => {
     fetchOrders();
   }, []);
 
-  const token = () => localStorage.getItem('token');
-  const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` });
-
   const fetchReturns = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/returns/purchase', { headers: headers() });
-      const data = await res.json();
-      setReturns(Array.isArray(data) ? data : []);
+      const res = await api.get('/returns/purchase');
+      setReturns(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
   const fetchReasons = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/returns/reasons', { headers: headers() });
-      const data = await res.json();
-      setReasons(Array.isArray(data) ? data.filter(r => r.category === 'purchase' || r.category === 'both') : []);
+      const res = await api.get('/returns/reasons');
+      setReasons(Array.isArray(res.data) ? res.data.filter(r => r.category === 'purchase' || r.category === 'both') : []);
     } catch (err) { console.error(err); }
   };
 
   const fetchSuppliers = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/suppliers', { headers: headers() });
-      const data = await res.json();
-      setSuppliers(Array.isArray(data) ? data : []);
+      const res = await api.get('/suppliers');
+      setSuppliers(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/products', { headers: headers() });
-      const data = await res.json();
-      setProducts(Array.isArray(data) ? data : []);
+      const res = await api.get('/products');
+      setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/purchase-orders', { headers: headers() });
-      const data = await res.json();
-      setOrders(Array.isArray(data) ? data : []);
+      const res = await api.get('/purchase-orders');
+      setOrders(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const handleOrderSelect = async (orderId) => {
     if (!orderId) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/purchase-orders/${orderId}`, { headers: headers() });
-      const order = await res.json();
+      const res = await api.get(`/purchase-orders/${orderId}`);
+      const order = res.data;
       if (order && order.items) {
         const items = order.items.map(item => ({
           product_id: item.product_id,
@@ -106,9 +99,8 @@ const PurchaseReturns = () => {
 
   const handleViewDetail = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/returns/purchase/${id}`, { headers: headers() });
-      const data = await res.json();
-      setSelectedReturn(data);
+      const res = await api.get(`/returns/purchase/${id}`);
+      setSelectedReturn(res.data);
     } catch (err) { console.error(err); }
   };
 
@@ -117,21 +109,15 @@ const PurchaseReturns = () => {
     if (formData.items.length === 0) return alert('Add at least one item');
 
     try {
-      const res = await fetch('http://localhost:3000/api/returns/purchase', {
-        method: 'POST',
-        headers: headers(),
-        body: JSON.stringify(formData)
-      });
-      if (res.ok) {
-        alert('Purchase return created successfully');
-        setShowModal(false);
-        setFormData({ original_purchase_order_id: '', supplier_id: '', return_date: new Date().toISOString().split('T')[0], notes: '', items: [] });
-        fetchReturns();
-      } else {
-        const err = await res.json();
-        alert(err.error || 'Failed to create return');
-      }
-    } catch (err) { console.error(err); }
+      await api.post('/returns/purchase', formData);
+      alert('Purchase return created successfully');
+      setShowModal(false);
+      setFormData({ original_purchase_order_id: '', supplier_id: '', return_date: new Date().toISOString().split('T')[0], notes: '', items: [] });
+      fetchReturns();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || 'Failed to create return');
+    }
   };
 
   const statusBadge = (status) => {

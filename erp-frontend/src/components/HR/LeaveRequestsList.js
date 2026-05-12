@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const LeaveRequestsList = () => {
   const navigate = useNavigate();
@@ -15,12 +16,8 @@ const LeaveRequestsList = () => {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/hr/leave-requests', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setRequests(Array.isArray(data) ? data : []);
+      const res = await api.get('/hr/leave-requests');
+      setRequests(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Error fetching leave requests:', err);
     } finally {
@@ -31,25 +28,25 @@ const LeaveRequestsList = () => {
   const handleApprove = async (id) => {
     if (!window.confirm('Approve this leave request?')) return;
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/hr/leave-requests/${id}/approve`, {
-        method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) { alert('Leave request approved'); fetchRequests(); }
-      else { const err = await response.json(); alert(err.error || 'Failed to approve'); }
-    } catch (err) { console.error(err); alert('Failed to approve'); }
+      await api.patch(`/hr/leave-requests/${id}/approve`);
+      alert('Leave request approved');
+      fetchRequests();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to approve: ' + (err.response?.data?.error || err.message));
+    }
   };
 
   const handleReject = async (id) => {
     if (!window.confirm('Reject this leave request?')) return;
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/hr/leave-requests/${id}/reject`, {
-        method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) { alert('Leave request rejected'); fetchRequests(); }
-      else { const err = await response.json(); alert(err.error || 'Failed to reject'); }
-    } catch (err) { console.error(err); alert('Failed to reject'); }
+      await api.patch(`/hr/leave-requests/${id}/reject`);
+      alert('Leave request rejected');
+      fetchRequests();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to reject: ' + (err.response?.data?.error || err.message));
+    }
   };
 
   const formatDate = (dateString) => {

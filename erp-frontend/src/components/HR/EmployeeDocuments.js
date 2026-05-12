@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '../../services/api';
 
 const EmployeeDocuments = ({ employeeId, employeeName }) => {
     const [documents, setDocuments] = useState([]);
@@ -28,12 +29,8 @@ const EmployeeDocuments = ({ employeeId, employeeName }) => {
     const fetchDocuments = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/hr/employees/${employeeId}/documents`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            setDocuments(Array.isArray(data) ? data : []);
+            const res = await api.get(`/hr/employees/${employeeId}/documents`);
+            setDocuments(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             console.error('Error fetching documents:', err);
         } finally {
@@ -60,26 +57,17 @@ const EmployeeDocuments = ({ employeeId, employeeName }) => {
         formData.append('document_type', documentType);
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/hr/employees/${employeeId}/documents/upload`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData
+            await api.post(`/hr/employees/${employeeId}/documents/upload`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
-
-            if (response.ok) {
-                alert('Document uploaded successfully!');
-                setShowUploadModal(false);
-                setSelectedFile(null);
-                setDocumentType('');
-                fetchDocuments();
-            } else {
-                const error = await response.json();
-                setError(error.error || 'Upload failed');
-            }
+            alert('Document uploaded successfully!');
+            setShowUploadModal(false);
+            setSelectedFile(null);
+            setDocumentType('');
+            fetchDocuments();
         } catch (err) {
             console.error('Error uploading:', err);
-            setError('Failed to upload document');
+            setError(err.response?.data?.error || 'Upload failed');
         } finally {
             setUploading(false);
         }
@@ -88,18 +76,9 @@ const EmployeeDocuments = ({ employeeId, employeeName }) => {
     const handleDelete = async (docId, docName) => {
         if (window.confirm(`Delete "${docName}"? This action cannot be undone.`)) {
             try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3000/api/hr/employees/${employeeId}/documents/${docId}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (response.ok) {
-                    alert('Document deleted successfully');
-                    fetchDocuments();
-                } else {
-                    alert('Failed to delete document');
-                }
+                await api.delete(`/hr/employees/${employeeId}/documents/${docId}`);
+                alert('Document deleted successfully');
+                fetchDocuments();
             } catch (err) {
                 console.error('Error deleting:', err);
                 alert('Failed to delete document');
@@ -110,7 +89,7 @@ const EmployeeDocuments = ({ employeeId, employeeName }) => {
     const handleDownload = async (docId, docName) => {
         try {
             const token = localStorage.getItem('token');
-            window.open(`http://localhost:3000/api/hr/employees/${employeeId}/documents/${docId}/download?token=${token}`, '_blank');
+            window.open(`/api/hr/employees/${employeeId}/documents/${docId}/download?token=${token}`, '_blank');
         } catch (err) {
             console.error('Error downloading:', err);
             alert('Failed to download document');

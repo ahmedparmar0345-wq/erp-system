@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const LeaveBalance = () => {
     const navigate = useNavigate();
@@ -16,22 +17,12 @@ const LeaveBalance = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-
             const [employeesRes, balancesRes] = await Promise.all([
-                fetch('http://localhost:3000/api/hr/employees', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }),
-                fetch(`http://localhost:3000/api/hr/leave-balances?year=${year}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                })
+                api.get('/hr/employees'),
+                api.get('/hr/leave-balances', { params: { year } })
             ]);
-
-            const employeesData = await employeesRes.json();
-            const balancesData = await balancesRes.json();
-
-            setEmployees(Array.isArray(employeesData) ? employeesData : []);
-            setLeaveBalances(Array.isArray(balancesData) ? balancesData : []);
+            setEmployees(Array.isArray(employeesRes.data) ? employeesRes.data : []);
+            setLeaveBalances(Array.isArray(balancesRes.data) ? balancesRes.data : []);
         } catch (err) {
             console.error('Error fetching data:', err);
         } finally {

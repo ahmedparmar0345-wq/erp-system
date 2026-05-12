@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { getBOM, createBOM, updateBOM } from '../../services/production';
 import { useNavigate, useParams } from 'react-router-dom';
+import api from '../../services/api';
 
 const BOMForm = () => {
   const { id } = useParams();
@@ -34,12 +35,8 @@ const BOMForm = () => {
 
   const fetchProducts = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:3000/api/products', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      setProducts(data);
+      const res = await api.get('/products');
+      setProducts(res.data);
     } catch (err) {
       console.error(err);
     }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const EmployeeList = () => {
   const navigate = useNavigate();
@@ -17,12 +18,8 @@ const EmployeeList = () => {
   const fetchEmployees = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/hr/employees', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setEmployees(Array.isArray(data) ? data : []);
+      const res = await api.get('/hr/employees');
+      setEmployees(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Error fetching employees:', err);
     } finally {

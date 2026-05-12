@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from '../../services/api';
 
 const FinancialRatios = () => {
   const [ratios, setRatios] = useState(null);
@@ -7,14 +8,11 @@ const FinancialRatios = () => {
 
   useEffect(() => { fetchRatios(); }, []);
 
-  const token = () => localStorage.getItem('token');
-  const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` });
-
   const fetchRatios = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/accounting-enhancements/reports/financial-ratios', { headers: headers() });
-      setRatios(await res.json());
+      const res = await api.get('/accounting-enhancements/reports/financial-ratios');
+      setRatios(res.data);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };

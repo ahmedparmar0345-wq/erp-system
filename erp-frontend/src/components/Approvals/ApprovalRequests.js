@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from '../../services/api';
 
 const ApprovalRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -22,26 +23,23 @@ const ApprovalRequests = () => {
     fetchUsers();
   }, []);
 
-  const token = () => localStorage.getItem('token');
-  const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` });
-
   const fetchRequests = async () => {
-    try { const res = await fetch('http://localhost:3000/api/approvals/requests', { headers: headers() }); const d = await res.json(); setRequests(Array.isArray(d) ? d : []); }
+    try { const res = await api.get('/approvals/requests'); setRequests(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); }
   };
 
   const fetchPending = async () => {
-    try { const res = await fetch('http://localhost:3000/api/approvals/requests/pending', { headers: headers() }); const d = await res.json(); setPendingRequests(Array.isArray(d) ? d : []); }
+    try { const res = await api.get('/approvals/requests/pending'); setPendingRequests(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); }
   };
 
   const fetchWorkflows = async () => {
-    try { const res = await fetch('http://localhost:3000/api/approvals/workflows', { headers: headers() }); const d = await res.json(); setWorkflows(Array.isArray(d) ? d : []); }
+    try { const res = await api.get('/approvals/workflows'); setWorkflows(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); } finally { setLoading(false); }
   };
 
   const fetchUsers = async () => {
-    try { const res = await fetch('http://localhost:3000/api/auth/users', { headers: headers() }); const d = await res.json(); setUsers(Array.isArray(d) ? d : []); }
+    try { const res = await api.get('/auth/users'); setUsers(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); }
   };
 
@@ -49,41 +47,47 @@ const ApprovalRequests = () => {
     e.preventDefault();
     if (!wfForm.name || !wfForm.target_entity) return alert('Name and target entity required');
     try {
-      const res = await fetch('http://localhost:3000/api/approvals/workflows', {
-        method: 'POST', headers: headers(), body: JSON.stringify(wfForm)
-      });
-      if (res.ok) { alert('Workflow created'); setShowWfModal(false); setWfForm({ name: '', description: '', target_entity: '', steps: [{ approver_id: '', approver_role_id: '', min_amount: '', max_amount: '', requires_all: false }] }); fetchWorkflows(); }
-      else { const err = await res.json(); alert(err.error || 'Failed'); }
-    } catch (err) { console.error(err); }
+      await api.post('/approvals/workflows', wfForm);
+      alert('Workflow created');
+      setShowWfModal(false);
+      setWfForm({ name: '', description: '', target_entity: '', steps: [{ approver_id: '', approver_role_id: '', min_amount: '', max_amount: '', requires_all: false }] });
+      fetchWorkflows();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed');
+    }
   };
 
   const handleSubmitRequest = async (e) => {
     e.preventDefault();
     if (!reqForm.workflow_id || !reqForm.target_id) return alert('Workflow and target ID required');
     try {
-      const res = await fetch('http://localhost:3000/api/approvals/requests', {
-        method: 'POST', headers: headers(), body: JSON.stringify(reqForm)
-      });
-      if (res.ok) { alert('Approval request submitted'); setShowReqModal(false); setReqForm({ workflow_id: '', target_entity: 'purchase_order', target_id: '', amount: 0, notes: '' }); fetchRequests(); }
-      else { const err = await res.json(); alert(err.error || 'Failed'); }
-    } catch (err) { console.error(err); }
+      await api.post('/approvals/requests', reqForm);
+      alert('Approval request submitted');
+      setShowReqModal(false);
+      setReqForm({ workflow_id: '', target_entity: 'purchase_order', target_id: '', amount: 0, notes: '' });
+      fetchRequests();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed');
+    }
   };
 
   const handleAction = async (id, action) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/approvals/requests/${id}/action`, {
-        method: 'POST', headers: headers(), body: JSON.stringify({ action, comment: approveComment })
-      });
-      if (res.ok) { alert(`Request ${action}`); setSelectedRequest(null); setApproveComment(''); fetchRequests(); fetchPending(); }
-      else { const err = await res.json(); alert(err.error || 'Failed'); }
-    } catch (err) { console.error(err); }
+      await api.post(`/approvals/requests/${id}/action`, { action, comment: approveComment });
+      alert(`Request ${action}`);
+      setSelectedRequest(null);
+      setApproveComment('');
+      fetchRequests();
+      fetchPending();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed');
+    }
   };
 
   const handleViewRequest = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/approvals/requests/${id}`, { headers: headers() });
-      const d = await res.json();
-      setSelectedRequest(d);
+      const res = await api.get(`/approvals/requests/${id}`);
+      setSelectedRequest(res.data);
     } catch (err) { console.error(err); }
   };
 

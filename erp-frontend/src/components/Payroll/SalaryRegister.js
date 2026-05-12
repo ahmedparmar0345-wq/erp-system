@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const SalaryRegister = () => {
     const navigate = useNavigate();
@@ -20,11 +21,8 @@ const SalaryRegister = () => {
 
     const loadPeriods = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:3000/api/hr/payroll/periods', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
+            const res = await api.get('/hr/payroll/periods');
+            const data = res.data;
             setPeriods(data);
             if (data && data.length > 0) {
                 setSelectedPeriod(data[0].id);
@@ -39,12 +37,8 @@ const SalaryRegister = () => {
     const loadTransactions = async () => {
         if (!selectedPeriod) return;
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:3000/api/hr/payroll/transactions?period_id=${selectedPeriod}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-            setTransactions(data);
+            const res = await api.get('/hr/payroll/transactions', { params: { period_id: selectedPeriod } });
+            setTransactions(res.data);
         } catch (err) {
             console.error(err);
         }

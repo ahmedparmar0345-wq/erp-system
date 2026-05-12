@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from '../../services/api';
 
 const Invoices = () => {
   const [invoices, setInvoices] = useState([]);
@@ -26,38 +27,32 @@ const Invoices = () => {
     fetchOrders();
   }, []);
 
-  const token = () => localStorage.getItem('token');
-  const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` });
-
   const fetchInvoices = async () => {
-    try { setLoading(true); const res = await fetch('http://localhost:3000/api/invoices', { headers: headers() }); const d = await res.json(); setInvoices(Array.isArray(d) ? d : []); }
+    try { setLoading(true); const res = await api.get('/invoices'); setInvoices(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); } finally { setLoading(false); }
   };
 
   const fetchCustomers = async () => {
-    try { const res = await fetch('http://localhost:3000/api/customers', { headers: headers() }); const d = await res.json(); setCustomers(Array.isArray(d) ? d : []); }
+    try { const res = await api.get('/customers'); setCustomers(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); }
   };
 
   const fetchProducts = async () => {
-    try { const res = await fetch('http://localhost:3000/api/products', { headers: headers() }); const d = await res.json(); setProducts(Array.isArray(d) ? d : []); }
+    try { const res = await api.get('/products'); setProducts(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); }
   };
 
   const fetchOrders = async () => {
-    try { const res = await fetch('http://localhost:3000/api/sales-orders', { headers: headers() }); const d = await res.json(); setOrders(Array.isArray(d) ? d : []); }
+    try { const res = await api.get('/sales-orders'); setOrders(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); }
   };
 
   const handleCreateFromOrder = async () => {
     if (!selectedOrderId) return alert('Select an order');
     try {
-      const res = await fetch(`http://localhost:3000/api/invoices/from-order/${selectedOrderId}`, {
-        method: 'POST', headers: headers(), body: JSON.stringify({ due_date: formData.due_date, payment_terms: formData.payment_terms, notes: formData.notes })
-      });
-      if (res.ok) { alert('Invoice created from order'); setShowModal(false); setSelectedOrderId(''); fetchInvoices(); }
-      else { const e = await res.json(); alert(e.error || 'Failed'); }
-    } catch (err) { console.error(err); }
+      await api.post(`/invoices/from-order/${selectedOrderId}`, { due_date: formData.due_date, payment_terms: formData.payment_terms, notes: formData.notes });
+      alert('Invoice created from order'); setShowModal(false); setSelectedOrderId(''); fetchInvoices();
+    } catch (err) { console.error(err); alert(err.response?.data?.error || 'Failed'); }
   };
 
   const handleAddItem = () => {
@@ -72,27 +67,21 @@ const Invoices = () => {
     e.preventDefault();
     if (formData.items.length === 0) return alert('Add at least one item');
     try {
-      const res = await fetch('http://localhost:3000/api/invoices', {
-        method: 'POST', headers: headers(), body: JSON.stringify(formData)
-      });
-      if (res.ok) { alert('Invoice created'); setShowModal(false); setFormData({ customer_id: '', invoice_date: new Date().toISOString().split('T')[0], due_date: '', payment_terms: '', notes: '', items: [] }); fetchInvoices(); }
-      else { const e = await res.json(); alert(e.error || 'Failed'); }
-    } catch (err) { console.error(err); }
+      await api.post('/invoices', formData);
+      alert('Invoice created'); setShowModal(false); setFormData({ customer_id: '', invoice_date: new Date().toISOString().split('T')[0], due_date: '', payment_terms: '', notes: '', items: [] }); fetchInvoices();
+    } catch (err) { console.error(err); alert(err.response?.data?.error || 'Failed'); }
   };
 
   const handleView = async (id) => {
-    try { const res = await fetch(`http://localhost:3000/api/invoices/${id}`, { headers: headers() }); const d = await res.json(); setSelectedInvoice(d); }
+    try { const res = await api.get(`/invoices/${id}`); setSelectedInvoice(res.data); }
     catch (err) { console.error(err); }
   };
 
   const handleStatusChange = async (id, status) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/invoices/${id}/status`, {
-        method: 'PATCH', headers: headers(), body: JSON.stringify({ status })
-      });
-      if (res.ok) { fetchInvoices(); if (selectedInvoice) handleView(id); }
-      else alert('Failed to update status');
-    } catch (err) { console.error(err); }
+      await api.patch(`/invoices/${id}/status`, { status });
+      fetchInvoices(); if (selectedInvoice) handleView(id);
+    } catch (err) { console.error(err); alert('Failed to update status'); }
   };
 
   const openPayment = (id, amount) => {
@@ -105,12 +94,9 @@ const Invoices = () => {
     e.preventDefault();
     if (!payForm.amount || parseFloat(payForm.amount) <= 0) return alert('Valid amount required');
     try {
-      const res = await fetch(`http://localhost:3000/api/invoices/${payInvoiceId}/payments`, {
-        method: 'POST', headers: headers(), body: JSON.stringify(payForm)
-      });
-      if (res.ok) { alert('Payment recorded'); setShowPaymentModal(false); setPayInvoiceId(null); setPayForm({ payment_date: new Date().toISOString().split('T')[0], amount: '', payment_method: 'bank_transfer', reference_number: '', notes: '' }); fetchInvoices(); }
-      else { const e = await res.json(); alert(e.error || 'Failed'); }
-    } catch (err) { console.error(err); }
+      await api.post(`/invoices/${payInvoiceId}/payments`, payForm);
+      alert('Payment recorded'); setShowPaymentModal(false); setPayInvoiceId(null); setPayForm({ payment_date: new Date().toISOString().split('T')[0], amount: '', payment_method: 'bank_transfer', reference_number: '', notes: '' }); fetchInvoices();
+    } catch (err) { console.error(err); alert(err.response?.data?.error || 'Failed'); }
   };
 
   const statusBadge = (s) => {

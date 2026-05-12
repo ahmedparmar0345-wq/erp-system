@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from '../../services/api';
 
 const Leads = () => {
   const [leads, setLeads] = useState([]);
@@ -24,69 +25,61 @@ const Leads = () => {
     fetchUsers();
   }, [filter]);
 
-  const token = () => localStorage.getItem('token');
-  const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` });
-
   const fetchLeads = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
       if (filter.status_id) params.append('status_id', filter.status_id);
       if (filter.search) params.append('search', filter.search);
-      const res = await fetch(`http://localhost:3000/api/crm/leads?${params}`, { headers: headers() });
-      const data = await res.json();
-      setLeads(Array.isArray(data) ? data : []);
+      const res = await api.get(`/crm/leads?${params}`);
+      setLeads(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
   const fetchSources = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/crm/lead-sources', { headers: headers() });
-      const data = await res.json();
-      setSources(Array.isArray(data) ? data : []);
+      const res = await api.get('/crm/lead-sources');
+      setSources(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const fetchStatuses = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/crm/lead-statuses', { headers: headers() });
-      const data = await res.json();
-      setStatuses(Array.isArray(data) ? data : []);
+      const res = await api.get('/crm/lead-statuses');
+      setStatuses(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/settings/users', { headers: headers() });
-      const data = await res.json();
-      setUsers(Array.isArray(data) ? data : []);
+      const res = await api.get('/settings/users');
+      setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = editing ? `http://localhost:3000/api/crm/leads/${editing}` : 'http://localhost:3000/api/crm/leads';
-      const method = editing ? 'PUT' : 'POST';
-      const res = await fetch(url, { method, headers: headers(), body: JSON.stringify(formData) });
-      if (res.ok) {
-        alert(editing ? 'Lead updated' : 'Lead created');
-        setShowModal(false);
-        setEditing(null);
-        setFormData({ first_name: '', last_name: '', email: '', phone: '', mobile: '', company: '', designation: '', website: '', source_id: '', status_id: '', assigned_to: '', address: '', city: '', state: '', country: '', notes: '' });
-        fetchLeads();
+      if (editing) {
+        await api.put(`/crm/leads/${editing}`, formData);
       } else {
-        const err = await res.json();
-        alert(err.error);
+        await api.post('/crm/leads', formData);
       }
-    } catch (err) { console.error(err); }
+      alert(editing ? 'Lead updated' : 'Lead created');
+      setShowModal(false);
+      setEditing(null);
+      setFormData({ first_name: '', last_name: '', email: '', phone: '', mobile: '', company: '', designation: '', website: '', source_id: '', status_id: '', assigned_to: '', address: '', city: '', state: '', country: '', notes: '' });
+      fetchLeads();
+    } catch (err) {
+      alert(err.response?.data?.error || err.message);
+    }
   };
 
   const handleEdit = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/crm/leads/${id}`, { headers: headers() });
-      const data = await res.json();
+      const res = await api.get(`/crm/leads/${id}`);
+      const data = res.data;
       setEditing(id);
       setFormData({
         first_name: data.first_name || '', last_name: data.last_name || '', email: data.email || '', phone: data.phone || '',
@@ -101,7 +94,7 @@ const Leads = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this lead?')) return;
     try {
-      await fetch(`http://localhost:3000/api/crm/leads/${id}`, { method: 'DELETE', headers: headers() });
+      await api.delete(`/crm/leads/${id}`);
       fetchLeads();
     } catch (err) { console.error(err); }
   };
@@ -109,17 +102,18 @@ const Leads = () => {
   const handleConvert = async (id) => {
     if (!window.confirm('Convert this lead to a customer?')) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/crm/leads/${id}/convert`, { method: 'POST', headers: headers() });
-      if (res.ok) { alert('Lead converted to customer'); fetchLeads(); }
-      else { const err = await res.json(); alert(err.error); }
-    } catch (err) { console.error(err); }
+      await api.post(`/crm/leads/${id}/convert`);
+      alert('Lead converted to customer');
+      fetchLeads();
+    } catch (err) {
+      alert(err.response?.data?.error || err.message);
+    }
   };
 
   const handleViewDetail = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/crm/leads/${id}`, { headers: headers() });
-      const data = await res.json();
-      setDetail(data);
+      const res = await api.get(`/crm/leads/${id}`);
+      setDetail(res.data);
     } catch (err) { console.error(err); }
   };
 

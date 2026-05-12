@@ -49,7 +49,7 @@ const VoucherList = () => {
   };
 
   const handlePrint = (id) => {
-    window.open(`http://localhost:3000/api/accounting/vouchers/${id}/print`, '_blank');
+    window.open(`/api/accounting/vouchers/${id}/print`, '_blank');
   };
 
   const handleView = (id) => {

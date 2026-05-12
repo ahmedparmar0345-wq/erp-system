@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import EmployeeDocuments from './EmployeeDocuments';
+import api from '../../services/api';
 
 const EmployeeDetail = () => {
   const { id } = useParams();
@@ -18,12 +19,8 @@ const EmployeeDetail = () => {
 
   const fetchEmployee = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/hr/employees/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setEmployee(data);
+      const res = await api.get(`/hr/employees/${id}`);
+      setEmployee(res.data);
     } catch (err) {
       console.error('Error fetching employee:', err);
     }
@@ -31,12 +28,8 @@ const EmployeeDetail = () => {
 
   const fetchDocuments = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/hr/employees/${id}/documents`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setDocuments(Array.isArray(data) ? data : []);
+      const res = await api.get(`/hr/employees/${id}/documents`);
+      setDocuments(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Error fetching documents:', err);
     } finally {

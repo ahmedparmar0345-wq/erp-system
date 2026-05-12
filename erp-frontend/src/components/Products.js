@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -21,28 +22,16 @@ const Products = () => {
 
   useEffect(() => {
     fetchProducts();
-    fetch('http://localhost:3000/api/tax', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
-      .then(r => r.json()).then(d => setTaxRates(Array.isArray(d) ? d : [])).catch(() => {});
+    api.get('/tax').then(res => setTaxRates(Array.isArray(res.data) ? res.data : [])).catch(() => {});
   }, []);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem('token');
-
-      const response = await fetch('http://localhost:3000/api/products', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      const res = await api.get('/products');
+      const data = res.data;
       console.log('Products fetched:', data);
-
-      // Ensure data is an array
       if (Array.isArray(data)) {
         setProducts(data);
       } else {
@@ -50,7 +39,7 @@ const Products = () => {
       }
     } catch (err) {
       console.error('Error fetching products:', err);
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
       setProducts([]);
     } finally {
       setLoading(false);
@@ -59,70 +48,44 @@ const Products = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
-
     try {
-      const url = editingProduct
-        ? `http://localhost:3000/api/products/${editingProduct.id}`
-        : 'http://localhost:3000/api/products';
+      const body = {
+        sku: formData.sku,
+        name: formData.name,
+        description: formData.description,
+        unit_price: parseFloat(formData.unit_price) || 0,
+        cost_price: parseFloat(formData.cost_price) || 0,
+        current_stock: parseInt(formData.current_stock) || 0,
+        reorder_level: parseInt(formData.reorder_level) || 0,
+        tax_rate_id: formData.tax_rate_id ? parseInt(formData.tax_rate_id) : null,
+        barcode: formData.barcode || null
+      };
 
-      const method = editingProduct ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          sku: formData.sku,
-          name: formData.name,
-          description: formData.description,
-          unit_price: parseFloat(formData.unit_price) || 0,
-          cost_price: parseFloat(formData.cost_price) || 0,
-          current_stock: parseInt(formData.current_stock) || 0,
-          reorder_level: parseInt(formData.reorder_level) || 0,
-          tax_rate_id: formData.tax_rate_id ? parseInt(formData.tax_rate_id) : null,
-          barcode: formData.barcode || null
-        })
-      });
-
-      if (response.ok) {
-        alert(editingProduct ? 'Product updated!' : 'Product created!');
-        setShowModal(false);
-        resetForm();
-        fetchProducts();
+      if (editingProduct) {
+        await api.put(`/products/${editingProduct.id}`, body);
+        alert('Product updated!');
       } else {
-        const errorData = await response.json();
-        alert('Failed: ' + (errorData.error || 'Unknown error'));
+        await api.post('/products', body);
+        alert('Product created!');
       }
+      setShowModal(false);
+      resetForm();
+      fetchProducts();
     } catch (err) {
       console.error('Error saving product:', err);
-      alert('Failed to save product');
+      alert('Failed: ' + (err.response?.data?.error || err.message));
     }
   };
 
   const handleDelete = async (id, name) => {
     if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
-
-    const token = localStorage.getItem('token');
-
     try {
-      const response = await fetch(`http://localhost:3000/api/products/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        alert('Product deleted!');
-        fetchProducts();
-      } else {
-        const errorData = await response.json();
-        alert('Failed: ' + (errorData.error || 'Unknown error'));
-      }
+      await api.delete(`/products/${id}`);
+      alert('Product deleted!');
+      fetchProducts();
     } catch (err) {
       console.error('Error deleting product:', err);
-      alert('Failed to delete product');
+      alert('Failed: ' + (err.response?.data?.error || err.message));
     }
   };
 

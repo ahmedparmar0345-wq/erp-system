@@ -129,7 +129,7 @@ const POSLayout = () => {
       setCustomer(null);
       await Promise.all([loadCart(), loadTodayStats()]);
       if (result.order) {
-        window.open(`http://localhost:3000/api/pos/receipt/${result.order.id}`, '_blank');
+        window.open(`/api/pos/receipt/${result.order.id}`, '_blank');
       }
     } catch (err) {
       console.error('Error completing sale:', err);

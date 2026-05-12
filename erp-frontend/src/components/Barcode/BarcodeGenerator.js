@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import JsBarcode from 'jsbarcode';
 import { QRCodeSVG } from 'qrcode.react';
+import api from '../../services/api';
 
 const BarcodeGenerator = () => {
   const navigate = useNavigate();
@@ -19,12 +20,8 @@ const BarcodeGenerator = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:3000/api/barcode/products', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      setProducts(Array.isArray(data) ? data : []);
+      const res = await api.get('/barcode/products');
+      setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Error loading products:', err);
     } finally {

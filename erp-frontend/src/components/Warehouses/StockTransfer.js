@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from '../../services/api';
 
 const StockTransfer = () => {
   const [transfers, setTransfers] = useState([]);
@@ -21,33 +22,27 @@ const StockTransfer = () => {
     fetchProducts();
   }, [statusFilter]);
 
-  const token = () => localStorage.getItem('token');
-  const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` });
-
   const fetchTransfers = async () => {
     try {
       setLoading(true);
-      const params = statusFilter ? `?status=${statusFilter}` : '';
-      const res = await fetch(`http://localhost:3000/api/warehouses/transfers${params}`, { headers: headers() });
-      const data = await res.json();
-      setTransfers(Array.isArray(data) ? data : []);
+      const params = statusFilter ? { status: statusFilter } : {};
+      const res = await api.get('/warehouses/transfers', { params });
+      setTransfers(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
   const fetchWarehouses = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/warehouses', { headers: headers() });
-      const data = await res.json();
-      setWarehouses(Array.isArray(data) ? data : []);
+      const res = await api.get('/warehouses');
+      setWarehouses(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/products', { headers: headers() });
-      const data = await res.json();
-      setProducts(Array.isArray(data) ? data : []);
+      const res = await api.get('/products');
+      setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
@@ -66,44 +61,45 @@ const StockTransfer = () => {
     if (formData.items.length === 0) return alert('Add at least one item');
 
     try {
-      const res = await fetch('http://localhost:3000/api/warehouses/transfers', {
-        method: 'POST', headers: headers(), body: JSON.stringify(formData)
-      });
-      if (res.ok) {
-        alert('Stock transfer created');
-        setShowModal(false);
-        setFormData({ from_warehouse_id: '', to_warehouse_id: '', transfer_date: new Date().toISOString().split('T')[0], notes: '', items: [] });
-        fetchTransfers();
-      } else {
-        const err = await res.json();
-        alert(err.error);
-      }
-    } catch (err) { console.error(err); }
+      await api.post('/warehouses/transfers', formData);
+      alert('Stock transfer created');
+      setShowModal(false);
+      setFormData({ from_warehouse_id: '', to_warehouse_id: '', transfer_date: new Date().toISOString().split('T')[0], notes: '', items: [] });
+      fetchTransfers();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || 'Failed');
+    }
   };
 
   const handleApprove = async (id) => {
     if (!window.confirm('Approve this transfer?')) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/warehouses/transfers/${id}/approve`, { method: 'PATCH', headers: headers() });
-      if (res.ok) { alert('Transfer approved'); fetchTransfers(); }
-      else { const err = await res.json(); alert(err.error); }
-    } catch (err) { console.error(err); }
+      await api.patch(`/warehouses/transfers/${id}/approve`);
+      alert('Transfer approved');
+      fetchTransfers();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || 'Failed');
+    }
   };
 
   const handleComplete = async (id) => {
     if (!window.confirm('Complete this transfer? This will move stock between warehouses.')) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/warehouses/transfers/${id}/complete`, { method: 'POST', headers: headers() });
-      if (res.ok) { alert('Transfer completed'); fetchTransfers(); }
-      else { const err = await res.json(); alert(err.error); }
-    } catch (err) { console.error(err); }
+      await api.post(`/warehouses/transfers/${id}/complete`);
+      alert('Transfer completed');
+      fetchTransfers();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || 'Failed');
+    }
   };
 
   const handleViewDetail = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/warehouses/transfers/${id}`, { headers: headers() });
-      const data = await res.json();
-      setDetail(data);
+      const res = await api.get(`/warehouses/transfers/${id}`);
+      setDetail(res.data);
     } catch (err) { console.error(err); }
   };
 

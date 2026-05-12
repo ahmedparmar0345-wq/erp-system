@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '../services/api';
 
 const PurchaseOrders = () => {
   const [purchaseOrders, setPurchaseOrders] = useState([]);
@@ -25,27 +26,14 @@ const PurchaseOrders = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-
       const [ordersRes, suppliersRes, productsRes] = await Promise.all([
-        fetch('http://localhost:3000/api/purchase-orders', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3000/api/suppliers', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3000/api/products', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+        api.get('/purchase-orders'),
+        api.get('/suppliers'),
+        api.get('/products')
       ]);
-
-      const ordersData = await ordersRes.json();
-      const suppliersData = await suppliersRes.json();
-      const productsData = await productsRes.json();
-
-      setPurchaseOrders(Array.isArray(ordersData) ? ordersData : []);
-      setSuppliers(Array.isArray(suppliersData) ? suppliersData : []);
-      setProducts(Array.isArray(productsData) ? productsData : []);
+      setPurchaseOrders(Array.isArray(ordersRes.data) ? ordersRes.data : []);
+      setSuppliers(Array.isArray(suppliersRes.data) ? suppliersRes.data : []);
+      setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
     } catch (err) {
       console.error('Error fetching data:', err);
     } finally {
@@ -81,81 +69,39 @@ const PurchaseOrders = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
-
     try {
-      const response = await fetch('http://localhost:3000/api/purchase-orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
+      await api.post('/purchase-orders', formData);
+      alert('Purchase order created successfully!');
+      setShowModal(false);
+      setFormData({
+        supplier_id: '',
+        notes: '',
+        items: [{ product_id: '', quantity: 1, unit_price: 0 }]
       });
-
-      if (response.ok) {
-        alert('Purchase order created successfully!');
-        setShowModal(false);
-        setFormData({
-          supplier_id: '',
-          notes: '',
-          items: [{ product_id: '', quantity: 1, unit_price: 0 }]
-        });
-        fetchData();
-      } else {
-        const error = await response.json();
-        alert('Failed to create order: ' + (error.error || 'Unknown error'));
-      }
+      fetchData();
     } catch (err) {
       console.error('Error creating purchase order:', err);
-      alert('Failed to create purchase order');
+      alert('Failed to create order: ' + (err.response?.data?.error || err.message));
     }
   };
 
   const handleReceiveStock = async (orderId) => {
-    const token = localStorage.getItem('token');
-
     try {
-      const response = await fetch(`http://localhost:3000/api/purchase-orders/${orderId}/receive`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        alert('Stock received successfully!');
-        setShowReceiveModal(false);
-        fetchData();
-      } else {
-        const error = await response.json();
-        alert('Failed to receive stock: ' + (error.error || 'Unknown error'));
-      }
+      await api.post(`/purchase-orders/${orderId}/receive`);
+      alert('Stock received successfully!');
+      setShowReceiveModal(false);
+      fetchData();
     } catch (err) {
       console.error('Error receiving stock:', err);
-      alert('Failed to receive stock');
+      alert('Failed to receive stock: ' + (err.response?.data?.error || err.message));
     }
   };
 
   const handleUpdateStatus = async (orderId, status) => {
-    const token = localStorage.getItem('token');
-
     try {
-      const response = await fetch(`http://localhost:3000/api/purchase-orders/${orderId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ status })
-      });
-
-      if (response.ok) {
-        alert(`Order status updated to ${status}`);
-        fetchData();
-      } else {
-        alert('Failed to update status');
-      }
+      await api.patch(`/purchase-orders/${orderId}/status`, { status });
+      alert(`Order status updated to ${status}`);
+      fetchData();
     } catch (err) {
       console.error('Error updating status:', err);
       alert('Failed to update status');

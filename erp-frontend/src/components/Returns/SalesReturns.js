@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from '../../services/api';
 
 const SalesReturns = () => {
   const [returns, setReturns] = useState([]);
@@ -28,56 +29,48 @@ const SalesReturns = () => {
     fetchOrders();
   }, []);
 
-  const token = () => localStorage.getItem('token');
-  const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` });
-
   const fetchReturns = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/returns/sales', { headers: headers() });
-      const data = await res.json();
-      setReturns(Array.isArray(data) ? data : []);
+      const res = await api.get('/returns/sales');
+      setReturns(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
   const fetchReasons = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/returns/reasons', { headers: headers() });
-      const data = await res.json();
-      setReasons(Array.isArray(data) ? data : []);
+      const res = await api.get('/returns/reasons');
+      setReasons(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const fetchCustomers = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/customers', { headers: headers() });
-      const data = await res.json();
-      setCustomers(Array.isArray(data) ? data : []);
+      const res = await api.get('/customers');
+      setCustomers(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/products', { headers: headers() });
-      const data = await res.json();
-      setProducts(Array.isArray(data) ? data : []);
+      const res = await api.get('/products');
+      setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/sales-orders', { headers: headers() });
-      const data = await res.json();
-      setOrders(Array.isArray(data) ? data : []);
+      const res = await api.get('/sales-orders');
+      setOrders(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const handleOrderSelect = async (orderId) => {
     if (!orderId) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/sales-orders/${orderId}`, { headers: headers() });
-      const order = await res.json();
+      const res = await api.get(`/sales-orders/${orderId}`);
+      const order = res.data;
       if (order && order.items) {
         const items = order.items.map(item => ({
           product_id: item.product_id,
@@ -110,40 +103,33 @@ const SalesReturns = () => {
     if (formData.items.length === 0) return alert('Add at least one item');
 
     try {
-      const res = await fetch('http://localhost:3000/api/returns/sales', {
-        method: 'POST',
-        headers: headers(),
-        body: JSON.stringify(formData)
-      });
-      if (res.ok) {
-        alert('Sales return created successfully');
-        setShowModal(false);
-        setFormData({ original_sales_order_id: '', customer_id: '', return_date: new Date().toISOString().split('T')[0], restock_inventory: true, notes: '', items: [] });
-        fetchReturns();
-      } else {
-        const err = await res.json();
-        alert(err.error || 'Failed to create return');
-      }
-    } catch (err) { console.error(err); }
+      await api.post('/returns/sales', formData);
+      alert('Sales return created successfully');
+      setShowModal(false);
+      setFormData({ original_sales_order_id: '', customer_id: '', return_date: new Date().toISOString().split('T')[0], restock_inventory: true, notes: '', items: [] });
+      fetchReturns();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || 'Failed to create return');
+    }
   };
 
   const handleApprove = async (id) => {
     if (!window.confirm('Approve this return?')) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/returns/sales/${id}/approve`, {
-        method: 'PATCH',
-        headers: headers()
-      });
-      if (res.ok) { alert('Return approved'); fetchReturns(); }
-      else alert('Failed to approve');
-    } catch (err) { console.error(err); }
+      await api.patch(`/returns/sales/${id}/approve`);
+      alert('Return approved');
+      fetchReturns();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to approve');
+    }
   };
 
   const handleViewDetail = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/returns/sales/${id}`, { headers: headers() });
-      const data = await res.json();
-      setSelectedReturn(data);
+      const res = await api.get(`/returns/sales/${id}`);
+      setSelectedReturn(res.data);
     } catch (err) { console.error(err); }
   };
 

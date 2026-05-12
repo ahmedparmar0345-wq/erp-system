@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from '../../services/api';
 
 const FixedAssets = () => {
   const [assets, setAssets] = useState([]);
@@ -29,26 +30,23 @@ const FixedAssets = () => {
     fetchUsers();
   }, []);
 
-  const token = () => localStorage.getItem('token');
-  const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` });
-
   const fetchAssets = async () => {
-    try { setLoading(true); const res = await fetch('http://localhost:3000/api/fixed-assets', { headers: headers() }); const d = await res.json(); setAssets(Array.isArray(d) ? d : []); }
+    try { setLoading(true); const res = await api.get('/fixed-assets'); setAssets(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); } finally { setLoading(false); }
   };
 
   const fetchCategories = async () => {
-    try { const res = await fetch('http://localhost:3000/api/fixed-assets/categories', { headers: headers() }); const d = await res.json(); setCategories(Array.isArray(d) ? d : []); }
+    try { const res = await api.get('/fixed-assets/categories'); setCategories(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); }
   };
 
   const fetchSuppliers = async () => {
-    try { const res = await fetch('http://localhost:3000/api/suppliers', { headers: headers() }); const d = await res.json(); setSuppliers(Array.isArray(d) ? d : []); }
+    try { const res = await api.get('/suppliers'); setSuppliers(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); }
   };
 
   const fetchUsers = async () => {
-    try { const res = await fetch('http://localhost:3000/api/auth/users', { headers: headers() }); const d = await res.json(); setUsers(Array.isArray(d) ? d : []); }
+    try { const res = await api.get('/auth/users'); setUsers(Array.isArray(res.data) ? res.data : []); }
     catch (err) { console.error(err); }
   };
 
@@ -57,38 +55,31 @@ const FixedAssets = () => {
     if (!formData.asset_code || !formData.name || !formData.purchase_date || !formData.purchase_cost || !formData.useful_life)
       return alert('Asset code, name, purchase date, cost, and useful life are required');
     try {
-      const res = await fetch('http://localhost:3000/api/fixed-assets', {
-        method: 'POST', headers: headers(), body: JSON.stringify(formData)
-      });
-      if (res.ok) { alert('Asset created'); setShowModal(false); setFormData({ asset_code: '', name: '', category_id: '', description: '', purchase_date: '', purchase_cost: '', salvage_value: 0, useful_life: '', depreciation_method: 'straight_line', location: '', assigned_to: '', supplier_id: '', warranty_expiry: '', notes: '' }); fetchAssets(); }
-      else { const err = await res.json(); alert(err.error || 'Failed'); }
-    } catch (err) { console.error(err); }
+      await api.post('/fixed-assets', formData);
+      alert('Asset created'); setShowModal(false); setFormData({ asset_code: '', name: '', category_id: '', description: '', purchase_date: '', purchase_cost: '', salvage_value: 0, useful_life: '', depreciation_method: 'straight_line', location: '', assigned_to: '', supplier_id: '', warranty_expiry: '', notes: '' }); fetchAssets();
+    } catch (err) { console.error(err); alert(err.response?.data?.error || 'Failed'); }
   };
 
   const handleView = async (id) => {
-    try { const res = await fetch(`http://localhost:3000/api/fixed-assets/${id}`, { headers: headers() }); const d = await res.json(); setSelectedAsset(d); setActiveTab('details'); }
+    try { const res = await api.get(`/fixed-assets/${id}`); setSelectedAsset(res.data); setActiveTab('details'); }
     catch (err) { console.error(err); }
   };
 
   const handleDepreciate = async (id) => {
     if (!window.confirm('Run depreciation for this asset?')) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/fixed-assets/${id}/depreciate`, { method: 'POST', headers: headers() });
-      if (res.ok) { alert('Depreciation recorded'); if (selectedAsset) handleView(id); fetchAssets(); }
-      else alert('Failed');
-    } catch (err) { console.error(err); }
+      await api.post(`/fixed-assets/${id}/depreciate`);
+      alert('Depreciation recorded'); if (selectedAsset) handleView(id); fetchAssets();
+    } catch (err) { console.error(err); alert('Failed'); }
   };
 
   const handleMaintSubmit = async (e) => {
     e.preventDefault();
     if (!selectedAsset) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/fixed-assets/${selectedAsset.id}/maintenance`, {
-        method: 'POST', headers: headers(), body: JSON.stringify(maintForm)
-      });
-      if (res.ok) { alert('Maintenance recorded'); setShowMaintModal(false); setMaintForm({ maintenance_date: new Date().toISOString().split('T')[0], type: 'repair', description: '', cost: 0, performed_by: '', next_maintenance_date: '', notes: '' }); handleView(selectedAsset.id); }
-      else alert('Failed');
-    } catch (err) { console.error(err); }
+      await api.post(`/fixed-assets/${selectedAsset.id}/maintenance`, maintForm);
+      alert('Maintenance recorded'); setShowMaintModal(false); setMaintForm({ maintenance_date: new Date().toISOString().split('T')[0], type: 'repair', description: '', cost: 0, performed_by: '', next_maintenance_date: '', notes: '' }); handleView(selectedAsset.id);
+    } catch (err) { console.error(err); alert('Failed'); }
   };
 
   const handleDispose = async (e) => {
@@ -96,12 +87,9 @@ const FixedAssets = () => {
     if (!window.confirm('Dispose this asset? This cannot be undone.')) return;
     if (!selectedAsset) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/fixed-assets/${selectedAsset.id}/dispose`, {
-        method: 'POST', headers: headers(), body: JSON.stringify(disposeForm)
-      });
-      if (res.ok) { alert('Asset disposed'); setShowDisposeModal(false); setSelectedAsset(null); fetchAssets(); }
-      else alert('Failed');
-    } catch (err) { console.error(err); }
+      await api.post(`/fixed-assets/${selectedAsset.id}/dispose`, disposeForm);
+      alert('Asset disposed'); setShowDisposeModal(false); setSelectedAsset(null); fetchAssets();
+    } catch (err) { console.error(err); alert('Failed'); }
   };
 
   const statusBadge = (s) => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getPayslip } from '../../services/payroll';
+import api from '../../services/api';
 
 const PayslipView = () => {
     const { id } = useParams();
@@ -28,11 +29,8 @@ const PayslipView = () => {
 
     const fetchCompanyInfo = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/settings', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
+            const res = await api.get('/settings');
+            const data = res.data;
             if (data && data.general) {
                 setCompanyInfo({
                     name: data.general.company_name || 'ERP System',

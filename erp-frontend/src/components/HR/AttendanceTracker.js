@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const AttendanceTracker = () => {
   const navigate = useNavigate();
@@ -16,15 +17,12 @@ const AttendanceTracker = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
       const [employeesRes, attendanceRes] = await Promise.all([
-        fetch('http://localhost:3000/api/hr/employees', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`http://localhost:3000/api/hr/attendance?date=${selectedDate}`, { headers: { 'Authorization': `Bearer ${token}` } })
+        api.get('/hr/employees'),
+        api.get(`/hr/attendance`, { params: { date: selectedDate } })
       ]);
-      const employeesData = await employeesRes.json();
-      const attendanceData = await attendanceRes.json();
-      setEmployees(Array.isArray(employeesData) ? employeesData : []);
-      setAttendance(Array.isArray(attendanceData) ? attendanceData : []);
+      setEmployees(Array.isArray(employeesRes.data) ? employeesRes.data : []);
+      setAttendance(Array.isArray(attendanceRes.data) ? attendanceRes.data : []);
     } catch (err) {
       console.error('Error fetching data:', err);
     } finally {
@@ -33,48 +31,28 @@ const AttendanceTracker = () => {
   };
 
   const handleCheckIn = async (employeeId) => {
-    const token = localStorage.getItem('token');
     const now = new Date();
     const time = now.toTimeString().slice(0, 8);
     try {
-      const response = await fetch('http://localhost:3000/api/hr/attendance/check-in', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ employee_id: employeeId, date: selectedDate, check_in: time })
-      });
-      if (response.ok) {
-        alert('Check-in recorded successfully!');
-        fetchData();
-      } else {
-        const error = await response.json();
-        alert('Failed to check in: ' + (error.error || 'Unknown error'));
-      }
+      await api.post('/hr/attendance/check-in', { employee_id: employeeId, date: selectedDate, check_in: time });
+      alert('Check-in recorded successfully!');
+      fetchData();
     } catch (err) {
       console.error(err);
-      alert('Failed to check in');
+      alert('Failed to check in: ' + (err.response?.data?.error || err.message));
     }
   };
 
   const handleCheckOut = async (employeeId) => {
-    const token = localStorage.getItem('token');
     const now = new Date();
     const time = now.toTimeString().slice(0, 8);
     try {
-      const response = await fetch('http://localhost:3000/api/hr/attendance/check-out', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ employee_id: employeeId, date: selectedDate, check_out: time })
-      });
-      if (response.ok) {
-        alert('Check-out recorded successfully!');
-        fetchData();
-      } else {
-        const error = await response.json();
-        alert('Failed to check out: ' + (error.error || 'Unknown error'));
-      }
+      await api.post('/hr/attendance/check-out', { employee_id: employeeId, date: selectedDate, check_out: time });
+      alert('Check-out recorded successfully!');
+      fetchData();
     } catch (err) {
       console.error(err);
-      alert('Failed to check out');
+      alert('Failed to check out: ' + (err.response?.data?.error || err.message));
     }
   };
 

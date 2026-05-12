@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from '../../services/api';
 
 const WarehouseList = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -18,44 +19,40 @@ const WarehouseList = () => {
     fetchUsers();
   }, []);
 
-  const token = () => localStorage.getItem('token');
-  const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` });
-
   const fetchWarehouses = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/warehouses', { headers: headers() });
-      const data = await res.json();
-      setWarehouses(Array.isArray(data) ? data : []);
+      const res = await api.get('/warehouses');
+      setWarehouses(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/settings/users', { headers: headers() });
-      const data = await res.json();
-      setUsers(Array.isArray(data) ? data : []);
+      const res = await api.get('/settings/users');
+      setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = editing ? `http://localhost:3000/api/warehouses/${editing}` : 'http://localhost:3000/api/warehouses';
-      const method = editing ? 'PUT' : 'POST';
-      const res = await fetch(url, { method, headers: headers(), body: JSON.stringify(formData) });
-      if (res.ok) {
-        alert(editing ? 'Warehouse updated' : 'Warehouse created');
-        setShowModal(false);
-        setEditing(null);
-        setFormData({ code: '', name: '', address: '', city: '', state: '', country: 'USA', postal_code: '', phone: '', email: '', manager_id: '', is_default: false });
-        fetchWarehouses();
+      if (editing) {
+        await api.put(`/warehouses/${editing}`, formData);
+        alert('Warehouse updated');
       } else {
-        const err = await res.json();
-        alert(err.error);
+        await api.post('/warehouses', formData);
+        alert('Warehouse created');
       }
-    } catch (err) { console.error(err); }
+      setShowModal(false);
+      setEditing(null);
+      setFormData({ code: '', name: '', address: '', city: '', state: '', country: 'USA', postal_code: '', phone: '', email: '', manager_id: '', is_default: false });
+      fetchWarehouses();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || 'Failed');
+    }
   };
 
   const handleEdit = async (w) => {
@@ -71,17 +68,19 @@ const WarehouseList = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this warehouse?')) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/warehouses/${id}`, { method: 'DELETE', headers: headers() });
-      if (res.ok) { alert('Warehouse deleted'); fetchWarehouses(); }
-      else { const err = await res.json(); alert(err.error); }
-    } catch (err) { console.error(err); }
+      await api.delete(`/warehouses/${id}`);
+      alert('Warehouse deleted');
+      fetchWarehouses();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || 'Failed');
+    }
   };
 
   const handleViewDetail = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/warehouses/${id}`, { headers: headers() });
-      const data = await res.json();
-      setDetail(data);
+      const res = await api.get(`/warehouses/${id}`);
+      setDetail(res.data);
     } catch (err) { console.error(err); }
   };
 

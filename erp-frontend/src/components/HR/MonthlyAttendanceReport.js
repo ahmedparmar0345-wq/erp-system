@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const MonthlyAttendanceReport = () => {
     const navigate = useNavigate();
@@ -19,12 +20,8 @@ const MonthlyAttendanceReport = () => {
 
     const fetchEmployees = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/hr/employees', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            setEmployees(Array.isArray(data) ? data : []);
+            const res = await api.get('/hr/employees');
+            setEmployees(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             console.error('Error fetching employees:', err);
         }
@@ -33,16 +30,10 @@ const MonthlyAttendanceReport = () => {
     const fetchReport = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            let url = `http://localhost:3000/api/hr/attendance/report/monthly?year=${selectedYear}&month=${selectedMonth}`;
-            if (selectedEmployee) {
-                url += `&employee_id=${selectedEmployee}`;
-            }
-            const response = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            setReport(data);
+            const params = { year: selectedYear, month: selectedMonth };
+            if (selectedEmployee) params.employee_id = selectedEmployee;
+            const res = await api.get('/hr/attendance/report/monthly', { params });
+            setReport(res.data);
         } catch (err) {
             console.error('Error fetching report:', err);
         } finally {
@@ -53,12 +44,10 @@ const MonthlyAttendanceReport = () => {
     const fetchEmployeeDetailReport = async (employeeId) => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/hr/attendance/report/employee/${employeeId}?year=${selectedYear}&month=${selectedMonth}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+            const res = await api.get(`/hr/attendance/report/employee/${employeeId}`, {
+                params: { year: selectedYear, month: selectedMonth }
             });
-            const data = await response.json();
-            setReport(data);
+            setReport(res.data);
             setViewType('detailed');
         } catch (err) {
             console.error('Error fetching employee detail:', err);

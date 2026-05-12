@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
+import api from '../../services/api';
 
 const EmployeeForm = () => {
   const { id } = useParams();
@@ -39,12 +40,8 @@ const EmployeeForm = () => {
 
   const fetchEmployee = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/hr/employees/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setFormData(data);
+      const res = await api.get(`/hr/employees/${id}`);
+      setFormData(res.data);
     } catch (err) {
       console.error('Error fetching employee:', err);
     } finally {
@@ -55,26 +52,18 @@ const EmployeeForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const token = localStorage.getItem('token');
-    const url = id ? `http://localhost:3000/api/hr/employees/${id}` : 'http://localhost:3000/api/hr/employees';
-    const method = id ? 'PUT' : 'POST';
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(formData)
-      });
-      if (response.ok) {
-        alert(id ? 'Employee updated successfully!' : 'Employee created successfully!');
-        navigate('/hr/employees');
+      if (id) {
+        await api.put(`/hr/employees/${id}`, formData);
+        alert('Employee updated successfully!');
       } else {
-        const error = await response.json();
-        alert('Failed to save employee: ' + (error.error || 'Unknown error'));
+        await api.post('/hr/employees', formData);
+        alert('Employee created successfully!');
       }
+      navigate('/hr/employees');
     } catch (err) {
       console.error('Error saving employee:', err);
-      alert('Failed to save employee');
+      alert('Failed to save employee: ' + (err.response?.data?.error || err.message));
     } finally {
       setLoading(false);
     }

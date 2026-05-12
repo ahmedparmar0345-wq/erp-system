@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 
 const HRDashboard = () => {
     const navigate = useNavigate();
@@ -22,17 +23,13 @@ const HRDashboard = () => {
     const fetchHRData = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
 
-            const employeesRes = await fetch('http://localhost:3000/api/hr/employees', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const employees = await employeesRes.json();
-
-            const leavesRes = await fetch('http://localhost:3000/api/hr/leave-requests', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const leaves = await leavesRes.json();
+            const [employeesRes, leavesRes] = await Promise.all([
+                api.get('/hr/employees'),
+                api.get('/hr/leave-requests')
+            ]);
+            const employees = employeesRes.data;
+            const leaves = leavesRes.data;
 
             const employeesArray = Array.isArray(employees) ? employees : [];
             const leavesArray = Array.isArray(leaves) ? leaves : [];

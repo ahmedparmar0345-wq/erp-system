@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import api from '../../services/api';
 
 const Opportunities = () => {
   const [opportunities, setOpportunities] = useState([]);
@@ -30,59 +31,52 @@ const Opportunities = () => {
     fetchUsers();
   }, [stageFilter]);
 
-  const token = () => localStorage.getItem('token');
-  const headers = () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token()}` });
-
   const fetchOpportunities = async () => {
     try {
       setLoading(true);
       const params = stageFilter ? `?stage=${stageFilter}` : '';
-      const res = await fetch(`http://localhost:3000/api/crm/opportunities${params}`, { headers: headers() });
-      const data = await res.json();
-      setOpportunities(Array.isArray(data) ? data : []);
+      const res = await api.get(`/crm/opportunities${params}`);
+      setOpportunities(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
   const fetchLeads = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/crm/leads', { headers: headers() });
-      const data = await res.json();
-      setLeads(Array.isArray(data) ? data : []);
+      const res = await api.get('/crm/leads');
+      setLeads(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/settings/users', { headers: headers() });
-      const data = await res.json();
-      setUsers(Array.isArray(data) ? data : []);
+      const res = await api.get('/settings/users');
+      setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = editing ? `http://localhost:3000/api/crm/opportunities/${editing}` : 'http://localhost:3000/api/crm/opportunities';
-      const method = editing ? 'PUT' : 'POST';
-      const res = await fetch(url, { method, headers: headers(), body: JSON.stringify(formData) });
-      if (res.ok) {
-        alert(editing ? 'Opportunity updated' : 'Opportunity created');
-        setShowModal(false);
-        setEditing(null);
-        setFormData({ lead_id: '', customer_id: '', name: '', description: '', expected_revenue: '', probability: '', expected_close_date: '', stage: 'qualification', priority: 'medium', assigned_to: '', notes: '' });
-        fetchOpportunities();
+      if (editing) {
+        await api.put(`/crm/opportunities/${editing}`, formData);
       } else {
-        const err = await res.json();
-        alert(err.error);
+        await api.post('/crm/opportunities', formData);
       }
-    } catch (err) { console.error(err); }
+      alert(editing ? 'Opportunity updated' : 'Opportunity created');
+      setShowModal(false);
+      setEditing(null);
+      setFormData({ lead_id: '', customer_id: '', name: '', description: '', expected_revenue: '', probability: '', expected_close_date: '', stage: 'qualification', priority: 'medium', assigned_to: '', notes: '' });
+      fetchOpportunities();
+    } catch (err) {
+      alert(err.response?.data?.error || err.message);
+    }
   };
 
   const handleEdit = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/crm/opportunities/${id}`, { headers: headers() });
-      const d = await res.json();
+      const res = await api.get(`/crm/opportunities/${id}`);
+      const d = res.data;
       setEditing(id);
       setFormData({
         lead_id: d.lead_id || '', customer_id: d.customer_id || '', name: d.name || '', description: d.description || '',
@@ -96,17 +90,15 @@ const Opportunities = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this opportunity?')) return;
     try {
-      await fetch(`http://localhost:3000/api/crm/opportunities/${id}`, { method: 'DELETE', headers: headers() });
+      await api.delete(`/crm/opportunities/${id}`);
       fetchOpportunities();
     } catch (err) { console.error(err); }
   };
 
   const handleStageChange = async (id, stage) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/crm/opportunities/${id}`, {
-        method: 'PUT', headers: headers(), body: JSON.stringify({ stage })
-      });
-      if (res.ok) fetchOpportunities();
+      await api.put(`/crm/opportunities/${id}`, { stage });
+      fetchOpportunities();
     } catch (err) { console.error(err); }
   };
 

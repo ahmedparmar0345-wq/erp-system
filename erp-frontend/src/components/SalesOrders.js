@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 
 const SalesOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -20,28 +21,16 @@ const SalesOrders = () => {
   const fetchAllData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
 
-      // Fetch orders
-      const ordersRes = await fetch('http://localhost:3000/api/sales-orders', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const ordersData = await ordersRes.json();
-      setOrders(Array.isArray(ordersData) ? ordersData : []);
+      const [ordersRes, customersRes, productsRes] = await Promise.all([
+        api.get('/sales-orders'),
+        api.get('/customers'),
+        api.get('/products')
+      ]);
 
-      // Fetch customers
-      const customersRes = await fetch('http://localhost:3000/api/customers', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const customersData = await customersRes.json();
-      setCustomers(Array.isArray(customersData) ? customersData : []);
-
-      // Fetch products
-      const productsRes = await fetch('http://localhost:3000/api/products', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const productsData = await productsRes.json();
-      setProducts(Array.isArray(productsData) ? productsData : []);
+      setOrders(Array.isArray(ordersRes.data) ? ordersRes.data : []);
+      setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
+      setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
 
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -80,34 +69,19 @@ const SalesOrders = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem('token');
-
     try {
-      const response = await fetch('http://localhost:3000/api/sales-orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
+      await api.post('/sales-orders', formData);
+      alert('Sales order created successfully!');
+      setShowModal(false);
+      setFormData({
+        customer_id: '',
+        notes: '',
+        items: [{ product_id: '', quantity: 1, unit_price: 0, discount_percent: 0 }]
       });
-
-      if (response.ok) {
-        alert('Sales order created successfully!');
-        setShowModal(false);
-        setFormData({
-          customer_id: '',
-          notes: '',
-          items: [{ product_id: '', quantity: 1, unit_price: 0, discount_percent: 0 }]
-        });
-        fetchAllData();
-      } else {
-        const error = await response.json();
-        alert('Failed to create order: ' + (error.error || 'Unknown error'));
-      }
+      fetchAllData();
     } catch (err) {
       console.error('Error creating order:', err);
-      alert('Failed to create order');
+      alert('Failed to create order: ' + (err.response?.data?.error || err.message));
     }
   };
 
