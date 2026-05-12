@@ -81,13 +81,16 @@ router.get('/sales-forecast', async (req, res) => {
       d.setMonth(d.getMonth() + i);
       forecastMonths.push(d.toISOString().slice(0, 10));
     }
+    const hasForecast = revenueForecast.forecast.length > 0;
     res.json({
       historical,
-      forecast: forecastMonths.map((m, i) => ({
-        month: m,
-        revenue: revenueForecast.forecast[i],
-        orders: orderForecast.forecast[i],
-      })),
+      forecast: hasForecast
+        ? forecastMonths.map((m, i) => ({
+            month: m,
+            revenue: revenueForecast.forecast[i] ?? 0,
+            orders: orderForecast.forecast[i] ?? 0,
+          }))
+        : [],
       confidence: revenueForecast.confidence,
     });
   } catch (err) {
