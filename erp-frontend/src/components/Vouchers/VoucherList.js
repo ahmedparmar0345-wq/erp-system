@@ -151,7 +151,7 @@ const VoucherList = () => {
         <motion.h1
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          style={{ fontSize: '32px', fontWeight: '700', marginBottom: '8px', background: 'linear-gradient(135deg, #1a1a2e, #16213e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+          style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: '700', marginBottom: '8px', background: 'linear-gradient(135deg, #1a1a2e, #16213e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
         >
           Vouchers
         </motion.h1>
@@ -159,7 +159,7 @@ const VoucherList = () => {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.05 }}
-          style={{ fontSize: '14px', color: '#666' }}
+          style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', color: '#666' }}
         >
           Manage payment, receipt, journal, and contra vouchers with ease
         </motion.p>
@@ -182,7 +182,7 @@ const VoucherList = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <div style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280', marginBottom: '4px' }}>Total Vouchers</div>
-              <div style={{ fontSize: '32px', fontWeight: '700', color: '#1f2937' }}>{stats.total}</div>
+              <div style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: '700', color: '#1f2937' }}>{stats.total}</div>
             </div>
             <div style={{ width: '48px', height: '48px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>📄</div>
           </div>
@@ -191,7 +191,7 @@ const VoucherList = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <div style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280', marginBottom: '4px' }}>Total Amount</div>
-              <div style={{ fontSize: '32px', fontWeight: '700', color: '#10b981' }}>{formatCurrency(stats.totalAmount)}</div>
+              <div style={{ fontSize: 'clamp(18px, 4vw, 32px)', fontWeight: '700', color: '#10b981' }}>{formatCurrency(stats.totalAmount)}</div>
             </div>
             <div style={{ width: '48px', height: '48px', background: '#d1fae5', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>💰</div>
           </div>
@@ -200,7 +200,7 @@ const VoucherList = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <div style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280', marginBottom: '4px' }}>Payment Vouchers</div>
-              <div style={{ fontSize: '32px', fontWeight: '700', color: '#ef4444' }}>{stats.paymentCount}</div>
+              <div style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: '700', color: '#ef4444' }}>{stats.paymentCount}</div>
             </div>
             <div style={{ width: '48px', height: '48px', background: '#fee2e2', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>💸</div>
           </div>
@@ -209,7 +209,7 @@ const VoucherList = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <div style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280', marginBottom: '4px' }}>Receipt Vouchers</div>
-              <div style={{ fontSize: '32px', fontWeight: '700', color: '#10b981' }}>{stats.receiptCount}</div>
+              <div style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: '700', color: '#10b981' }}>{stats.receiptCount}</div>
             </div>
             <div style={{ width: '48px', height: '48px', background: '#d1fae5', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>📥</div>
           </div>
@@ -242,7 +242,7 @@ const VoucherList = () => {
             placeholder="Search by voucher number or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontSize: '14px' }}
+            style={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', background: 'transparent', fontSize: 'clamp(12px, 2.5vw, 14px)' }}
           />
         </div>
         <select
@@ -294,18 +294,18 @@ const VoucherList = () => {
           animate={{ scale: 1, opacity: 1 }}
           style={{
             textAlign: 'center',
-            padding: '80px',
+            padding: 'clamp(40px, 8vw, 80px)',
             background: 'white',
             borderRadius: '24px',
             boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
           }}
         >
-          <div style={{ fontSize: '64px', marginBottom: '16px' }}>📄</div>
-          <div style={{ fontSize: '20px', fontWeight: '500', marginBottom: '8px' }}>No vouchers found</div>
+          <div style={{ fontSize: 'clamp(40px, 10vw, 64px)', marginBottom: '16px' }}>📄</div>
+          <div style={{ fontSize: 'clamp(16px, 3.5vw, 20px)', fontWeight: '500', marginBottom: '8px' }}>No vouchers found</div>
           <div style={{ fontSize: '14px', color: '#666' }}>Create your first voucher by clicking the "New Voucher" button.</div>
         </motion.div>
       ) : (
-        <div className="vl-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px' }}>
+        <div className="vl-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))', gap: 'clamp(16px, 3vw, 24px)' }}>
           <AnimatePresence>
             {filteredVouchers.map((voucher, index) => {
               const typeConfig = getVoucherTypeConfig(voucher.voucher_type);
@@ -329,11 +329,13 @@ const VoucherList = () => {
                   {/* Card Header */}
                   <div style={{
                     background: typeConfig.bgGradient,
-                    padding: '16px 20px',
+                    padding: 'clamp(12px, 2.5vw, 16px) clamp(16px, 3vw, 20px)',
                     borderBottom: `2px solid ${typeConfig.borderColor}20`,
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    gap: 8,
+                    flexWrap: 'wrap'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{
@@ -374,16 +376,16 @@ const VoucherList = () => {
                   </div>
 
                   {/* Card Body */}
-                  <div style={{ padding: '20px' }}>
-                    <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
-                      <div style={{ flex: 1 }}>
+                  <div style={{ padding: 'clamp(16px, 3vw, 20px)' }}>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                      <div style={{ flex: '1 0 120px' }}>
                         <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px' }}>Date</div>
                         <div style={{ fontSize: '14px', fontWeight: '500', color: '#1f2937' }}>{formatDate(voucher.entry_date)}</div>
                       </div>
                       {voucher.description && (
                         <div style={{ flex: 2 }}>
                           <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '4px' }}>Description</div>
-                          <div style={{ fontSize: '13px', color: '#4b5563', lineHeight: '1.4' }}>{voucher.description}</div>
+                          <div style={{ fontSize: 'clamp(12px, 2.5vw, 13px)', color: '#4b5563', lineHeight: '1.4', wordBreak: 'break-word' }}>{voucher.description}</div>
                         </div>
                       )}
                     </div>
@@ -397,13 +399,13 @@ const VoucherList = () => {
                     }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '10px', color: '#9ca3af', marginBottom: '2px' }}>Total Debit</div>
-                        <div style={{ fontSize: '18px', fontWeight: '700', color: '#ef4444' }}>
+                        <div style={{ fontSize: 'clamp(15px, 3.5vw, 18px)', fontWeight: '700', color: '#ef4444' }}>
                           {formatCurrency(voucher.total_debit)}
                         </div>
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '10px', color: '#9ca3af', marginBottom: '2px' }}>Total Credit</div>
-                        <div style={{ fontSize: '18px', fontWeight: '700', color: '#10b981' }}>
+                        <div style={{ fontSize: 'clamp(15px, 3.5vw, 18px)', fontWeight: '700', color: '#10b981' }}>
                           {formatCurrency(voucher.total_credit)}
                         </div>
                       </div>
@@ -412,17 +414,19 @@ const VoucherList = () => {
 
                   {/* Card Footer */}
                   <div className="vl-card-footer" style={{
-                    padding: '12px 20px',
+                    padding: 'clamp(10px, 2vw, 12px) clamp(16px, 3vw, 20px)',
                     background: '#f9fafb',
                     borderTop: '1px solid #e5e7eb',
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    gap: 8,
+                    flexWrap: 'wrap'
                   }}>
                     <div style={{ fontSize: '10px', color: '#9ca3af' }}>
                       Created: {formatDate(voucher.created_at)}
                     </div>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                       <button
                         onClick={() => navigate(`/vouchers/${voucher.id}`)}
                         style={{

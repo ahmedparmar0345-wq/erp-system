@@ -147,22 +147,22 @@ const CreateVoucher = () => {
         <button
           onClick={() => navigate('/vouchers')}
           style={{
-            padding: '8px 16px',
+            padding: 'clamp(8px, 2vw, 10px) clamp(12px, 3vw, 16px)',
             background: '#f3f4f6',
             color: '#374151',
             border: 'none',
             borderRadius: '10px',
             cursor: 'pointer',
-            fontSize: '14px',
+            fontSize: 'clamp(12px, 2.5vw, 14px)',
             marginBottom: '16px'
           }}
         >
           ← Back to Vouchers
         </button>
-        <h1 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '4px' }}>
+        <h1 style={{ fontSize: 'clamp(22px, 5vw, 28px)', fontWeight: '700', marginBottom: '4px' }}>
           Create Voucher
         </h1>
-        <p style={{ fontSize: '14px', color: '#666' }}>
+        <p style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', color: '#666' }}>
           Create payment, receipt, journal, or contra vouchers
         </p>
       </div>
@@ -171,11 +171,11 @@ const CreateVoucher = () => {
       <div className="voucher-card" style={{
         background: 'white',
         borderRadius: '16px',
-        padding: '24px',
+        padding: 'clamp(16px, 3vw, 24px)',
         marginBottom: '24px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
       }}>
-        <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Select Voucher Type</h3>
+        <h3 style={{ fontSize: 'clamp(14px, 3vw, 16px)', fontWeight: '600', marginBottom: '16px' }}>Select Voucher Type</h3>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           {voucherTypes.map(type => (
             <button
@@ -208,7 +208,7 @@ const CreateVoucher = () => {
         <div style={{
           background: 'white',
           borderRadius: '16px',
-          padding: '24px',
+          padding: 'clamp(16px, 3vw, 24px)',
           marginBottom: '24px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
         }}>
@@ -355,13 +355,13 @@ const CreateVoucher = () => {
             onClick={handleAddLine}
             style={{
               marginTop: '16px',
-              padding: '8px 16px',
+              padding: 'clamp(8px, 2vw, 10px) clamp(12px, 3vw, 16px)',
               background: '#f3f4f6',
               color: '#374151',
               border: 'none',
               borderRadius: '10px',
               cursor: 'pointer',
-              fontSize: '14px'
+              fontSize: 'clamp(12px, 2.5vw, 14px)'
             }}
           >
             + Add Line Item
@@ -384,7 +384,7 @@ const CreateVoucher = () => {
         </div>
 
         {/* Form Actions */}
-        <div className="voucher-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginBottom: '40px' }}>
+        <div className="voucher-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginBottom: '40px', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={() => navigate('/vouchers')}
