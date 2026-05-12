@@ -211,7 +211,8 @@ router.get('/users/:id', async (req, res) => {
 // POST /api/settings/users
 router.post('/users', async (req, res) => {
   try {
-    const { email, name, password, role_id } = req.body;
+    const { email, name: rawName, full_name, password, role_id } = req.body;
+    const name = rawName || full_name;
 
     // Check if email exists
     const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
@@ -235,7 +236,8 @@ router.post('/users', async (req, res) => {
 // PUT /api/settings/users/:id
 router.put('/users/:id', async (req, res) => {
   try {
-    const { name, role_id, is_active } = req.body;
+    const { name: rawName, full_name, role_id, is_active } = req.body;
+    const name = rawName || full_name;
     const result = await pool.query(
       `UPDATE users 
              SET name = COALESCE($1, name),
