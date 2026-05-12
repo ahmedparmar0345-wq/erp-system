@@ -103,7 +103,7 @@ const RoleManagement = () => {
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                      <button onClick={() => handleEdit(role)} disabled={role.is_system} style={{ padding: '6px 12px', background: role.is_system ? '#d1d5db' : '#6366f1', color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', cursor: role.is_system ? 'not-allowed' : 'pointer' }}>Edit</button>
+                      <button onClick={() => handleEdit(role)} style={{ padding: '6px 12px', background: '#6366f1', color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>Edit</button>
                       {!role.is_system && <button onClick={() => handleDelete(role.id)} style={{ padding: '6px 12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>Delete</button>}
                     </div>
                   </td>
