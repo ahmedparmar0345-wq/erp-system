@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getProductInsights } from '../../services/aiBi';
 
 const s = {
-  page: { padding: 'clamp(16px, 3vw, 32px)', fontFamily: "'Inter',-apple-system,sans-serif" },
+  page: { padding: 'clamp(16px, 3vw, 32px)', fontFamily: "'Inter',-apple-system,sans-serif", maxWidth: 1200, margin: '0 auto' },
   title: { fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 700, color: '#111', margin: '0 0 28px 0', letterSpacing: '-0.3px' },
   card: { background: '#fff', borderRadius: 16, padding: 'clamp(18px, 2.5vw, 24px)', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 6px 20px rgba(0,0,0,0.04)', border: '1px solid #f0f0f0', overflowX: 'auto' },
   cardTitle: { fontSize: 15, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 },

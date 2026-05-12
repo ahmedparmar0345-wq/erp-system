@@ -8,8 +8,8 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const MONTHS = 12;
 
 const s = {
-  page: { padding: 'clamp(16px, 3vw, 32px)', fontFamily: "'Inter',-apple-system,sans-serif" },
-  header: { display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 },
+  page: { padding: 'clamp(16px, 3vw, 32px)', fontFamily: "'Inter',-apple-system,sans-serif", maxWidth: 1200, margin: '0 auto' },
+  header: { display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 },
   title: { fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 700, color: '#111', margin: 0, letterSpacing: '-0.3px' },
   confBadge: { background: 'linear-gradient(135deg,#667eea,#764ba2)', borderRadius: 10, padding: '10px 20px', color: '#fff', fontSize: 14, fontWeight: 500, boxShadow: '0 4px 14px rgba(102,126,234,0.3)' },
   confValue: { fontWeight: 700, fontSize: 16 },

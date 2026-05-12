@@ -6,9 +6,9 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, P
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Title, Tooltip, Legend);
 
 const s = {
-  page: { padding: 'clamp(16px, 3vw, 32px)', fontFamily: "'Inter',-apple-system,sans-serif" },
+  page: { padding: 'clamp(16px, 3vw, 32px)', fontFamily: "'Inter',-apple-system,sans-serif", maxWidth: 1200, margin: '0 auto' },
   title: { fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 700, color: '#111', margin: '0 0 28px 0', letterSpacing: '-0.3px' },
-  tabs: { marginBottom: 24, display: 'flex', flexWrap: 'wrap', gap: 4, background: '#f3f4f6', borderRadius: 12, padding: 4, width: 'fit-content' },
+  tabs: { marginBottom: 24, display: 'flex', flexWrap: 'wrap', gap: 4, background: '#f3f4f6', borderRadius: 12, padding: 4 },
   tab: (active) => ({
     padding: '10px 22px', cursor: 'pointer', borderRadius: 10, border: 'none', fontSize: 14, fontWeight: active ? 600 : 500,
     background: active ? '#fff' : 'transparent', color: active ? '#111' : '#6b7280',
