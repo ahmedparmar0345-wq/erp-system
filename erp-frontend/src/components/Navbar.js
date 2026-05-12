@@ -93,6 +93,12 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
     { id: 3, text: 'Low stock alert: Widget A', time: '3 hours ago', unread: false }
   ];
 
+  const dropdownBase = {
+    position: 'absolute', top: '100%', right: 0, background: 'white',
+    borderRadius: '16px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
+    border: '1px solid #e5e7eb', overflow: 'hidden', marginTop: '8px', zIndex: 1000
+  };
+
   return (
     <nav style={{
       position: 'fixed',
@@ -105,25 +111,28 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 24px',
+      padding: '0 clamp(12px, 2vw, 24px)',
       zIndex: 999,
       transition: 'left 0.3s ease'
-    }} className="navbar">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 1.5vw, 16px)', minWidth: 0 }}>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           style={{
             background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer',
             color: '#4b5563', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '8px', borderRadius: '8px', transition: 'background 0.2s'
+            padding: '8px', borderRadius: '8px', transition: 'background 0.2s', flexShrink: 0
           }}
           onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
           onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
         >☰</button>
-        <span style={{ fontWeight: '600', color: '#374151', fontSize: '16px' }}>{getTitle()}</span>
+        <span style={{
+          fontWeight: '600', color: '#374151', fontSize: 'clamp(14px, 2vw, 16px)',
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+        }}>{getTitle()}</span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1vw, 12px)', flexShrink: 0 }}>
         {/* Notifications */}
         <div ref={notifRef} style={{ position: 'relative' }}>
           <button
@@ -141,9 +150,10 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
           </button>
           {showNotif && (
             <div style={{
-              position: 'absolute', top: '100%', right: 0, width: '320px', background: 'white',
-              borderRadius: '16px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)', border: '1px solid #e5e7eb',
-              overflow: 'hidden', marginTop: '8px', zIndex: 1000
+              ...dropdownBase,
+              width: 'clamp(280px, 90vw, 360px)',
+              right: isMobile ? '-60px' : 0,
+              transform: isMobile ? 'translateX(0)' : 'none',
             }}>
               <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', fontWeight: '600', fontSize: '14px' }}>Notifications</div>
               {notifications.length === 0 ? (
@@ -158,8 +168,8 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
                     onMouseEnter={(e) => e.currentTarget.style.background = '#f9fafb'}
                     onMouseLeave={(e) => e.currentTarget.style.background = n.unread ? '#f5f3ff' : 'white'}
                   >
-                    <div style={{ fontSize: '13px', flex: 1 }}>
-                      <div style={{ fontWeight: n.unread ? '500' : '400', color: '#374151' }}>{n.text}</div>
+                    <div style={{ fontSize: '13px', flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: n.unread ? '500' : '400', color: '#374151', wordBreak: 'break-word' }}>{n.text}</div>
                       <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>{n.time}</div>
                     </div>
                     {n.unread && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#6366f1', marginTop: '6px', flexShrink: 0 }}></div>}
@@ -175,31 +185,31 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, isMobile }) => {
           <div
             onClick={() => { setShowUserMenu(!showUserMenu); setShowNotif(false); }}
             style={{
-              display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer',
-              padding: '6px 10px', borderRadius: '10px', transition: 'background 0.2s',
+              display: 'flex', alignItems: 'center', gap: 'clamp(4px, 0.8vw, 10px)', cursor: 'pointer',
+              padding: '6px 8px', borderRadius: '10px', transition: 'background 0.2s',
               background: showUserMenu ? '#f3f4f6' : 'transparent'
             }}
             onMouseEnter={(e) => { if (!showUserMenu) e.currentTarget.style.background = '#f3f4f6'; }}
             onMouseLeave={(e) => { if (!showUserMenu) e.currentTarget.style.background = 'transparent'; }}
           >
             <div style={{
-              width: '34px', height: '34px', borderRadius: '50%',
+              width: 'clamp(28px, 4vw, 34px)', height: 'clamp(28px, 4vw, 34px)', borderRadius: '50%',
               background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontWeight: 'bold', color: 'white', fontSize: '14px'
+              fontWeight: 'bold', color: 'white', fontSize: 'clamp(12px, 1.5vw, 14px)', flexShrink: 0
             }}>A</div>
-            <span style={{ fontSize: '13px', fontWeight: '500', color: '#374151' }} className="user-name">Admin</span>
-            <span style={{ fontSize: '10px', color: '#9ca3af' }}>▼</span>
+            <span style={{ fontSize: 'clamp(12px, 1.5vw, 13px)', fontWeight: '500', color: '#374151' }} className="user-name">{isMobile ? '' : 'Admin'}</span>
+            <span style={{ fontSize: '10px', color: '#9ca3af', flexShrink: 0 }}>▼</span>
           </div>
           {showUserMenu && (
             <div style={{
-              position: 'absolute', top: '100%', right: 0, width: '200px', background: 'white',
-              borderRadius: '16px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)', border: '1px solid #e5e7eb',
-              overflow: 'hidden', marginTop: '8px', zIndex: 1000
+              ...dropdownBase,
+              width: 'clamp(180px, 80vw, 220px)',
+              right: isMobile ? '-8px' : 0
             }}>
               <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb' }}>
                 <div style={{ fontWeight: '600', fontSize: '14px' }}>Admin User</div>
-                <div style={{ fontSize: '12px', color: '#6b7280' }}>admin@erp.com</div>
+                <div style={{ fontSize: '12px', color: '#6b7280', wordBreak: 'break-all' }}>admin@erp.com</div>
               </div>
               <div style={{ padding: '8px' }}>
                 {[
