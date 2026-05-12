@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
-const API_URL = '/api';
+import api from '../services/api';
 
 const Reports = () => {
   const [activeTab, setActiveTab] = useState('stock-value');
@@ -21,10 +19,7 @@ const Reports = () => {
 
   const fetchStockValue = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/reports/stock-value`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('/reports/stock-value');
       setStockValue(res.data);
     } catch (err) {
       console.error(err);
@@ -33,10 +28,7 @@ const Reports = () => {
 
   const fetchLowStock = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/reports/low-stock`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('/reports/low-stock');
       setLowStock(res.data);
     } catch (err) {
       console.error(err);
@@ -46,11 +38,7 @@ const Reports = () => {
   const fetchStockLedger = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/reports/stock-ledger`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: filters
-      });
+      const res = await api.get('/reports/stock-ledger', { params: filters });
       setStockLedger(res.data);
     } catch (err) {
       console.error(err);
@@ -62,11 +50,7 @@ const Reports = () => {
   const fetchStockMovement = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/reports/stock-movement`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params: filters
-      });
+      const res = await api.get('/reports/stock-movement', { params: filters });
       setStockMovement(res.data);
     } catch (err) {
       console.error(err);

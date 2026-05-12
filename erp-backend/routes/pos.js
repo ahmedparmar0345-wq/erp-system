@@ -192,15 +192,22 @@ router.get('/session/current', async (req, res) => {
 
     const result = await pool.query(
       `SELECT s.*, u.name as cashier_name,
-              COALESCE(SUM(sales.grand_total), 0) as total_sales,
-              COUNT(sales.id) as transaction_count
+              COALESCE(agg.total_sales, 0) as total_sales,
+              COALESCE(agg.transaction_count, 0) as transaction_count
        FROM pos_sessions s
        LEFT JOIN users u ON s.user_id = u.id
-       LEFT JOIN sales_orders sales ON sales.pos_transaction = true 
-          AND sales.created_at >= s.opening_time 
-          AND (s.closing_time IS NULL OR sales.created_at <= s.closing_time)
-       WHERE s.company_id = $1 AND s.user_id = $2 AND s.status = 'open'
-       GROUP BY s.id, u.name`,
+       LEFT JOIN (
+         SELECT s2.id,
+                SUM(sales.grand_total) as total_sales,
+                COUNT(sales.id) as transaction_count
+         FROM pos_sessions s2
+         LEFT JOIN sales_orders sales ON sales.pos_transaction = true 
+            AND sales.created_at >= s2.opening_time 
+            AND (s2.closing_time IS NULL OR sales.created_at <= s2.closing_time)
+         WHERE s2.company_id = $1 AND s2.user_id = $2 AND s2.status = 'open'
+         GROUP BY s2.id
+       ) agg ON agg.id = s.id
+       WHERE s.company_id = $1 AND s.user_id = $2 AND s.status = 'open'`,
       [req.user.company_id, req.user.id]
     );
 

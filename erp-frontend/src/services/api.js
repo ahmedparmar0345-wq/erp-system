@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: window.location.hostname === 'localhost' ? '/api' : 'https://erp-backend.bonto.run/api',
+  baseURL: '/api',
 });
 
 // Request Interceptor: Add JWT Token

@@ -1,23 +1,17 @@
-import axios from 'axios';
-
-const API_URL = '/api';
-
-const getAuthHeaders = () => ({
-  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-});
+import api from './api';
 
 export const getStockLedger = async (params = {}) => {
-  return axios.get(`${API_URL}/reports/stock-ledger`, { ...getAuthHeaders(), params, timeout: 30000 });
+  return api.get('/reports/stock-ledger', { params, timeout: 30000 });
 };
 
 export const getStockValue = async () => {
-  return axios.get(`${API_URL}/reports/stock-value`, getAuthHeaders());
+  return api.get('/reports/stock-value');
 };
 
 export const getLowStock = async () => {
-  return axios.get(`${API_URL}/reports/low-stock`, getAuthHeaders());
+  return api.get('/reports/low-stock');
 };
 
 export const getStockMovement = async (params = {}) => {
-  return axios.get(`${API_URL}/reports/stock-movement`, { ...getAuthHeaders(), params });
+  return api.get('/reports/stock-movement', { params });
 };

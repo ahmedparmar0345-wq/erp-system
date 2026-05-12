@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import DashboardCharts from './DashboardCharts';
-
-const API_URL = 'http://localhost:3000/api';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -19,19 +17,15 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
-
-        // Get user info
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         setUserName(user.name || 'Admin');
 
         const [cRes, pRes, oRes, sRes, eRes] = await Promise.all([
-          axios.get(`${API_URL}/customers`, { headers }),
-          axios.get(`${API_URL}/products`, { headers }),
-          axios.get(`${API_URL}/sales-orders`, { headers }),
-          axios.get(`${API_URL}/suppliers`, { headers }),
-          axios.get(`${API_URL}/expenses`, { headers }),
+          api.get('/customers'),
+          api.get('/products'),
+          api.get('/sales-orders'),
+          api.get('/suppliers'),
+          api.get('/expenses'),
         ]);
 
         const products = pRes.data;

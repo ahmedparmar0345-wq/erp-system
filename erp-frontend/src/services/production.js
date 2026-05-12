@@ -1,67 +1,61 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:3000/api';
-
-const getAuthHeaders = () => ({
-  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-});
+import api from './api';
 
 export const getBOMs = async () => {
-  return axios.get(`${API_URL}/production/boms`, getAuthHeaders());
+  return api.get('/production/boms');
 };
 
 export const getBOM = async (id) => {
-  return axios.get(`${API_URL}/production/boms/${id}`, getAuthHeaders());
+  return api.get(`/production/boms/${id}`);
 };
 
 export const createBOM = async (data) => {
-  return axios.post(`${API_URL}/production/boms`, data, getAuthHeaders());
+  return api.post('/production/boms', data);
 };
 
 export const updateBOM = async (id, data) => {
-  return axios.put(`${API_URL}/production/boms/${id}`, data, getAuthHeaders());
+  return api.put(`/production/boms/${id}`, data);
 };
 
 export const deleteBOM = async (id) => {
-  return axios.delete(`${API_URL}/production/boms/${id}`, getAuthHeaders());
+  return api.delete(`/production/boms/${id}`);
 };
 
 export const getWorkOrders = async () => {
-  return axios.get(`${API_URL}/production/work-orders`, getAuthHeaders());
+  return api.get('/production/work-orders');
 };
 
 export const getWorkOrder = async (id) => {
-  return axios.get(`${API_URL}/production/work-orders/${id}`, getAuthHeaders());
+  return api.get(`/production/work-orders/${id}`);
 };
 
 export const createWorkOrder = async (data) => {
-  return axios.post(`${API_URL}/production/work-orders`, data, getAuthHeaders());
+  return api.post('/production/work-orders', data);
 };
 
 export const startWorkOrder = async (id) => {
-  return axios.patch(`${API_URL}/production/work-orders/${id}/start`, {}, getAuthHeaders());
+  return api.patch(`/production/work-orders/${id}/start`);
 };
 
 export const produceWorkOrder = async (id, data) => {
-  return axios.post(`${API_URL}/production/work-orders/${id}/produce`, data, getAuthHeaders());
+  return api.post(`/production/work-orders/${id}/produce`, data);
 };
 
 export const completeWorkOrder = async (id) => {
-  return axios.patch(`${API_URL}/production/work-orders/${id}/complete`, {}, getAuthHeaders());
+  return api.patch(`/production/work-orders/${id}/complete`);
 };
 
 export const cancelWorkOrder = async (id) => {
-  return axios.patch(`${API_URL}/production/work-orders/${id}/cancel`, {}, getAuthHeaders());
+  return api.patch(`/production/work-orders/${id}/cancel`);
 };
 
 export const getMaterialRequirements = async (bomId, quantity) => {
-  return axios.get(`${API_URL}/production/requirements/${bomId}?quantity=${quantity}`, getAuthHeaders());
+  return api.get(`/production/requirements/${bomId}?quantity=${quantity}`);
 };
 
 export const getAvailableStock = async (bomId) => {
-  return axios.get(`${API_URL}/production/available-stock/${bomId}`, getAuthHeaders());
+  return api.get(`/production/available-stock/${bomId}`);
 };
 
 export const calculateProductionCost = async (workOrderId) => {
-  return axios.post(`${API_URL}/production/calculate-cost/${workOrderId}`, {}, getAuthHeaders());
+  return api.post(`/production/calculate-cost/${workOrderId}`);
 };
