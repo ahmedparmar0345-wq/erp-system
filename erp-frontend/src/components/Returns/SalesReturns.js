@@ -140,14 +140,14 @@ const SalesReturns = () => {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h2 style={{ margin: 0 }}>Sales Returns</h2>
-        <button onClick={() => setShowModal(true)} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: 8, cursor: 'pointer' }}>+ New Return</button>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between', alignItems: 'center', marginBottom: 'clamp(16px, 3vw, 24px)' }}>
+        <h2 style={{ margin: 0, fontSize: 'clamp(18px, 4vw, 24px)' }}>Sales Returns</h2>
+        <button onClick={() => setShowModal(true)} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: 'clamp(8px, 2vw, 10px) clamp(14px, 3vw, 20px)', borderRadius: 8, cursor: 'pointer', fontSize: 'clamp(13px, 2.5vw, 14px)', whiteSpace: 'nowrap' }}>+ New Return</button>
       </div>
 
       {loading ? <p>Loading...</p> : (
-        <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-          <table className="table-modern" style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflowX: 'auto' }}>
+          <table className="table-modern" style={{ width: '100%', borderCollapse: 'collapse', minWidth: 500 }}>
             <thead>
               <tr style={{ background: '#f8fafc', textAlign: 'left' }}>
                 <th style={thStyle}>Return #</th>
@@ -172,18 +172,18 @@ const SalesReturns = () => {
                   </td>
                 </tr>
               ))}
-              {returns.length === 0 && <tr><td colSpan={6} style={{ padding: 24, textAlign: 'center' }}>No sales returns found</td></tr>}
+              {returns.length === 0 && <tr><td colSpan={6} style={{ padding: 'clamp(16px, 3vw, 24px)', textAlign: 'center' }}>No sales returns found</td></tr>}
             </tbody>
           </table>
         </div>
       )}
 
       {showModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: 32, width: 700, maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ margin: '0 0 20px' }}>New Sales Return</h3>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 'clamp(20px, 4vw, 32px)', width: 'min(700px, 100%)', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h3 style={{ margin: '0 0 20px', fontSize: 'clamp(16px, 3.5vw, 20px)' }}>New Sales Return</h3>
             <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: 16, marginBottom: 16 }}>
                 <div>
                   <label style={labelStyle}>Sales Order</label>
                   <select value={formData.original_sales_order_id} onChange={e => { setFormData(prev => ({ ...prev, original_sales_order_id: e.target.value })); handleOrderSelect(e.target.value); }} style={inputStyle}>
@@ -210,9 +210,10 @@ const SalesReturns = () => {
                 </div>
               </div>
 
-              <h4 style={{ marginBottom: 12 }}>Items</h4>
+              <h4 style={{ marginBottom: 12, fontSize: 'clamp(14px, 3vw, 16px)' }}>Items</h4>
               {formData.items.length > 0 && (
-                <table className="table-modern" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 12, fontSize: 13 }}>
+                <div style={{ overflowX: 'auto', marginBottom: 12 }}>
+                <table className="table-modern" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 400 }}>
                   <thead>
                     <tr style={{ background: '#f8fafc' }}>
                       <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'left' }}>Product</th>
@@ -236,10 +237,11 @@ const SalesReturns = () => {
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
 
-              <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'end' }}>
-                <div style={{ flex: 1 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(140px, 100%), 1fr))', gap: 8, marginBottom: 16, alignItems: 'end' }}>
+                <div>
                   <label style={labelStyle}>Product</label>
                   <select value={newItem.product_id} onChange={e => {
                     const p = products.find(x => x.id == e.target.value);
@@ -249,22 +251,22 @@ const SalesReturns = () => {
                     {products.map(p => <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>)}
                   </select>
                 </div>
-                <div style={{ width: 70 }}>
+                <div>
                   <label style={labelStyle}>Qty</label>
                   <input type="number" min="1" value={newItem.quantity} onChange={e => setNewItem(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))} style={inputStyle} />
                 </div>
-                <div style={{ width: 100 }}>
+                <div>
                   <label style={labelStyle}>Price</label>
                   <input type="number" step="0.01" value={newItem.unit_price} onChange={e => setNewItem(prev => ({ ...prev, unit_price: parseFloat(e.target.value) || 0 }))} style={inputStyle} />
                 </div>
-                <div style={{ flex: 1 }}>
+                <div>
                   <label style={labelStyle}>Reason</label>
                   <select value={newItem.return_reason_id} onChange={e => setNewItem(prev => ({ ...prev, return_reason_id: e.target.value }))} style={inputStyle}>
                     <option value="">Select</option>
                     {reasons.map(r => <option key={r.id} value={r.id}>{r.reason_name}</option>)}
                   </select>
                 </div>
-                <button type="button" onClick={handleAddItem} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 6, cursor: 'pointer', height: 38 }}>Add</button>
+                <button type="button" onClick={handleAddItem} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 6, cursor: 'pointer', height: 38, alignSelf: 'end' }}>Add</button>
               </div>
 
               <div style={{ marginBottom: 16 }}>
@@ -272,9 +274,9 @@ const SalesReturns = () => {
                 <textarea value={formData.notes} onChange={e => setFormData(prev => ({ ...prev, notes: e.target.value }))} style={{ ...inputStyle, minHeight: 60 }} />
               </div>
 
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{ padding: '10px 24px', border: '1px solid #d1d5db', borderRadius: 8, background: '#fff', cursor: 'pointer' }}>Cancel</button>
-                <button type="submit" style={{ padding: '10px 24px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>Create Return</button>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                <button type="button" onClick={() => setShowModal(false)} style={{ padding: '10px 24px', border: '1px solid #d1d5db', borderRadius: 8, background: '#fff', cursor: 'pointer', flex: '0 1 auto' }}>Cancel</button>
+                <button type="submit" style={{ padding: '10px 24px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', flex: '0 1 auto' }}>Create Return</button>
               </div>
             </form>
           </div>
@@ -282,17 +284,18 @@ const SalesReturns = () => {
       )}
 
       {selectedReturn && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: 32, width: 600, maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ margin: '0 0 16px' }}>Return Detail - {selectedReturn.return_number}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 'clamp(20px, 4vw, 32px)', width: 'min(600px, 100%)', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h3 style={{ margin: '0 0 16px', fontSize: 'clamp(16px, 3.5vw, 20px)' }}>Return Detail - {selectedReturn.return_number}</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(180px, 100%), 1fr))', gap: 12, marginBottom: 16 }}>
               <div><strong>Customer:</strong> {selectedReturn.customer_name || '-'}</div>
               <div><strong>Date:</strong> {new Date(selectedReturn.return_date).toLocaleDateString()}</div>
               <div><strong>Status:</strong> {statusBadge(selectedReturn.status)}</div>
               <div><strong>Total:</strong> ${parseFloat(selectedReturn.total_amount || 0).toFixed(2)}</div>
             </div>
             {selectedReturn.items && (
-              <table className="table-modern" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <div style={{ overflowX: 'auto' }}>
+              <table className="table-modern" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 400 }}>
                 <thead>
                   <tr style={{ background: '#f8fafc' }}>
                     <th style={{ padding: 8, border: '1px solid #e5e7eb', textAlign: 'left' }}>Product</th>
@@ -314,6 +317,7 @@ const SalesReturns = () => {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
             {selectedReturn.notes && <p style={{ marginTop: 16 }}><strong>Notes:</strong> {selectedReturn.notes}</p>}
             <button onClick={() => setSelectedReturn(null)} style={{ marginTop: 16, padding: '10px 24px', border: '1px solid #d1d5db', borderRadius: 8, background: '#fff', cursor: 'pointer' }}>Close</button>

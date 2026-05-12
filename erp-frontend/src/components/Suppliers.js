@@ -117,10 +117,10 @@ const Suppliers = () => {
         gap: '16px'
       }}>
         <div>
-          <h1 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '4px' }}>
+          <h1 style={{ fontSize: 'clamp(22px, 5vw, 28px)', fontWeight: '700', marginBottom: '4px' }}>
             Suppliers
           </h1>
-          <p style={{ fontSize: '14px', color: '#666' }}>
+          <p style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', color: '#666' }}>
             Manage your vendor and supplier relationships
           </p>
         </div>
@@ -133,13 +133,13 @@ const Suppliers = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            padding: '10px 20px',
+            padding: 'clamp(8px, 2vw, 10px) clamp(14px, 3vw, 20px)',
             background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
             color: 'white',
             border: 'none',
             borderRadius: '10px',
             cursor: 'pointer',
-            fontSize: '14px',
+            fontSize: 'clamp(12px, 2.5vw, 14px)',
             fontWeight: '500',
             boxShadow: '0 2px 4px rgba(99,102,241,0.3)',
             transition: 'transform 0.2s'
@@ -168,7 +168,7 @@ const Suppliers = () => {
             padding: '8px 16px',
             transition: 'all 0.2s'
           }}>
-            <span style={{ fontSize: '16px', marginRight: '8px', color: '#9ca3af' }}>🔍</span>
+            <span style={{ fontSize: 'clamp(14px, 3vw, 16px)', marginRight: '8px', color: '#9ca3af' }}>🔍</span>
             <input
               type="text"
               placeholder="Search by name, email, or phone..."
@@ -178,8 +178,9 @@ const Suppliers = () => {
                 flex: 1,
                 border: 'none',
                 outline: 'none',
-                fontSize: '14px',
-                background: 'transparent'
+                fontSize: 'clamp(13px, 2.5vw, 14px)',
+                background: 'transparent',
+                minWidth: 0
               }}
             />
           </div>
@@ -190,19 +191,19 @@ const Suppliers = () => {
       {filteredSuppliers.length === 0 ? (
         <div style={{
           textAlign: 'center',
-          padding: '60px',
+          padding: 'clamp(32px, 8vw, 60px) clamp(16px, 4vw, 60px)',
           background: 'white',
           borderRadius: '16px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏭</div>
-          <div style={{ fontSize: '18px', fontWeight: '500', marginBottom: '8px' }}>No suppliers found</div>
+          <div style={{ fontSize: 'clamp(36px, 10vw, 48px)', marginBottom: '16px' }}>🏭</div>
+          <div style={{ fontSize: 'clamp(15px, 3.5vw, 18px)', fontWeight: '500', marginBottom: '8px' }}>No suppliers found</div>
           <div style={{ fontSize: '14px', color: '#666' }}>Click "Add Supplier" to create your first supplier.</div>
         </div>
       ) : (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))',
           gap: '20px'
         }}>
           {filteredSuppliers.map((supplier, index) => (
@@ -229,16 +230,16 @@ const Suppliers = () => {
             >
               {/* Card Header */}
               <div style={{
-                padding: '20px',
+                padding: 'clamp(16px, 3vw, 20px)',
                 background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)',
                 borderBottom: '1px solid #e5e7eb'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap' }}>
                   <div>
-                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏭</div>
-                    <h3 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>{supplier.name}</h3>
+                    <div style={{ fontSize: 'clamp(24px, 6vw, 32px)', marginBottom: '8px' }}>🏭</div>
+                    <h3 style={{ fontSize: 'clamp(15px, 3.5vw, 18px)', fontWeight: '600', margin: 0, wordBreak: 'break-word' }}>{supplier.name}</h3>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                     <button
                       onClick={() => handleEdit(supplier)}
                       style={{
@@ -272,22 +273,22 @@ const Suppliers = () => {
               </div>
 
               {/* Card Body */}
-              <div style={{ padding: '20px' }}>
+              <div style={{ padding: 'clamp(16px, 3vw, 20px)' }}>
                 <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '16px' }}>📧</span>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>
+                  <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', color: '#374151', wordBreak: 'break-word' }}>
                     {supplier.email || 'No email provided'}
                   </span>
                 </div>
                 <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '16px' }}>📞</span>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>
+                  <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', color: '#374151' }}>
                     {supplier.phone || 'No phone provided'}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                   <span style={{ fontSize: '16px' }}>📍</span>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>
+                  <span style={{ fontSize: 'clamp(12px, 2.5vw, 14px)', color: '#374151', wordBreak: 'break-word' }}>
                     {supplier.address || 'No address provided'}
                   </span>
                 </div>
@@ -295,12 +296,14 @@ const Suppliers = () => {
 
               {/* Card Footer */}
               <div style={{
-                padding: '16px 20px',
+                padding: 'clamp(12px, 2.5vw, 16px) clamp(16px, 3vw, 20px)',
                 background: '#f9fafb',
                 borderTop: '1px solid #e5e7eb',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center'
+                alignItems: 'center',
+                gap: 8,
+                flexWrap: 'wrap'
               }}>
                 <span style={{ fontSize: '12px', color: '#6b7280' }}>
                   ID: #{supplier.id}
@@ -342,17 +345,18 @@ const Suppliers = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000
-            }}
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(0,0,0,0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1000,
+                padding: 'clamp(12px, 3vw, 24px)'
+              }}
             onClick={() => setShowModal(false)}
           >
             <motion.div
@@ -362,20 +366,19 @@ const Suppliers = () => {
               style={{
                 background: 'white',
                 borderRadius: '20px',
-                width: '500px',
-                maxWidth: '90%',
-                maxHeight: '85%',
+                width: 'min(500px, 100%)',
+                maxHeight: '85vh',
                 overflow: 'auto'
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '600', margin: 0 }}>
+              <div style={{ padding: 'clamp(16px, 3vw, 24px)', borderBottom: '1px solid #e5e7eb' }}>
+                <h2 style={{ fontSize: 'clamp(16px, 4vw, 20px)', fontWeight: '600', margin: 0 }}>
                   {editingSupplier ? 'Edit Supplier' : 'Add New Supplier'}
                 </h2>
               </div>
 
-              <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
+              <form onSubmit={handleSubmit} style={{ padding: 'clamp(16px, 3vw, 24px)' }}>
                 <div style={{ marginBottom: '20px' }}>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
                     Supplier Name *
@@ -467,7 +470,7 @@ const Suppliers = () => {
                   />
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}

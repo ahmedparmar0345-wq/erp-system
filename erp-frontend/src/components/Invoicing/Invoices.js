@@ -24,10 +24,10 @@ const s = {
   formGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: 'clamp(10px, 2vw, 16px)', marginBottom: 'clamp(12px, 2vw, 16px)' },
   label: { display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 4, color: '#374151' },
   input: { width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, boxSizing: 'border-box' },
-  itemRow: { display: 'flex', gap: 8, marginBottom: 16, alignItems: 'end', flexWrap: 'wrap' },
-  itemField: { flex: '1 0 auto', minWidth: 100 },
-  itemFieldSm: { flex: '0 0 auto', width: 'clamp(50px, 10vw, 70px)' },
-  itemFieldMd: { flex: '0 0 auto', width: 'clamp(80px, 15vw, 100px)' },
+  itemRow: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(130px, 100%), 1fr))', gap: 8, marginBottom: 16, alignItems: 'end' },
+  itemField: {},
+  itemFieldSm: {},
+  itemFieldMd: {},
   itemsTable: { width: '100%', borderCollapse: 'collapse', marginBottom: 12, fontSize: 13, minWidth: 400 },
   itemsTh: { padding: '8px clamp(4px, 1vw, 10px)', border: '1px solid #e5e7eb', textAlign: 'left', fontSize: 12, fontWeight: 600, color: '#6b7280', background: '#fafbfc', whiteSpace: 'nowrap' },
   itemsTd: { padding: '8px clamp(4px, 1vw, 10px)', border: '1px solid #e5e7eb', fontSize: 13 },
@@ -269,7 +269,10 @@ const Invoices = () => {
                       <label style={s.label}>Price</label>
                       <input type="number" step="0.01" value={newItem.unit_price} onChange={e => setNewItem(prev => ({ ...prev, unit_price: parseFloat(e.target.value) || 0 }))} style={s.input} />
                     </div>
-                    <button type="button" onClick={handleAddItem} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 6, cursor: 'pointer', height: 38, flexShrink: 0, fontSize: 13 }}>Add</button>
+                    <div>
+                      <label style={{ ...s.label, visibility: 'hidden' }}> </label>
+                      <button type="button" onClick={handleAddItem} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 6, cursor: 'pointer', height: 38, fontSize: 13, width: '100%' }}>Add</button>
+                    </div>
                   </div>
 
                   <div style={{ marginBottom: 16 }}>
