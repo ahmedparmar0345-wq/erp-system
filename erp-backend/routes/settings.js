@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import bcrypt from 'bcrypt';
 import pool from '../db.js';
 import auth from '../middleware/auth.js';
 import { requirePermission, auditLog } from '../middleware/permissions.js';
