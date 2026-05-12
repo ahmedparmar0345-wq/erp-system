@@ -1,7 +1,10 @@
 -- ========================================
 -- POS Module - Database Migration
--- Adds missing columns for POS functionality
 -- ========================================
+
+-- Fix user_id type mismatch (was TEXT, should be INTEGER to match users.id SERIAL)
+ALTER TABLE pos_sessions ALTER COLUMN user_id TYPE INTEGER USING user_id::integer;
+ALTER TABLE pos_cart ALTER COLUMN user_id TYPE INTEGER USING user_id::integer;
 
 -- Add POS columns to sales_orders
 ALTER TABLE sales_orders ADD COLUMN IF NOT EXISTS pos_transaction BOOLEAN DEFAULT false;

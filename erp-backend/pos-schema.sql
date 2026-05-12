@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS pos_sessions (
     id SERIAL PRIMARY KEY,
     company_id INTEGER REFERENCES companies(id),
-    user_id TEXT, -- FK to users(id) which is text
+    user_id INTEGER REFERENCES users(id),
     session_number VARCHAR(50) UNIQUE NOT NULL,
     opening_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     closing_time TIMESTAMP,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS pos_sessions (
 CREATE TABLE IF NOT EXISTS pos_cart (
     id SERIAL PRIMARY KEY,
     company_id INTEGER REFERENCES companies(id),
-    user_id TEXT,
+    user_id INTEGER,
     session_id INTEGER REFERENCES pos_sessions(id),
     customer_id TEXT,
     product_id INTEGER REFERENCES products(id),
