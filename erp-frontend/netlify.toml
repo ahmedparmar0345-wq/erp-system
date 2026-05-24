@@ -7,7 +7,7 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "https://erp-backend.bonto.run/api/:splat"
+  to = "https://erp-backend.onrender.com/api/:splat"
   status = 200
 
 [[redirects]]
